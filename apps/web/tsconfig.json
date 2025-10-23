@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist"
+  },
+  "include": ["src", "vite.config.ts", "index.html"],
+  "references": [
+    { "path": "../../packages/shared" }
+  ]
+}
+
