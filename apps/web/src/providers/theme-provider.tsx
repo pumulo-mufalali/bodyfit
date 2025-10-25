@@ -11,13 +11,13 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Initialize theme before first render
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'system';
+    if (typeof window === 'undefined') return 'light';
     const saved = localStorage.getItem("theme") as Theme;
     const root = document.documentElement;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = saved === "dark" || ((!saved || saved === "system") && prefersDark);
+    const isDark = saved === "dark" || (saved === "system" && prefersDark);
     root.classList.toggle("dark", isDark);
-    return saved || "system";
+    return saved || "light";
   });
 
   useEffect(() => {
