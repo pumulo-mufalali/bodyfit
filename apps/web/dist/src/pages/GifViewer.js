@@ -1,0 +1,6 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { mockExercises } from '../lib/mock-data';
+export default function GifViewer({ exerciseId, onBack }) {
+    const exercise = mockExercises.find(e => e.id === exerciseId);
+    return (_jsxs("div", { className: "max-w-3xl mx-auto py-10 px-4", children: [_jsxs("div", { className: "flex items-center justify-between mb-6", children: [_jsx("button", { onClick: onBack, className: "text-sm px-3 py-2 rounded-md bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700", children: "\u2190 Back" }), _jsx("h1", { className: "text-2xl font-semibold", children: exercise?.name ?? 'Exercise GIF' }), _jsx("div", {})] }), _jsxs("div", { className: "bg-white dark:bg-gray-900 p-6 rounded-xl shadow", children: [exercise?.imageUrl ? (_jsx("img", { src: exercise.imageUrl, alt: exercise.name, className: "w-full h-[60vh] object-contain mx-auto" })) : (_jsx("div", { className: "text-center text-muted-foreground", children: "No GIF available" })), exercise && (_jsxs("div", { className: "mt-4", children: [_jsx("h3", { className: "font-medium", children: exercise.name }), _jsx("p", { className: "text-sm text-muted-foreground", children: exercise.description })] }))] })] }));
+}

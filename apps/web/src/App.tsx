@@ -1,16 +1,20 @@
-import { UserProfileCard } from './components/UserProfileCard';
+import React from 'react';
+import DashboardLayout from './components/DashboardLayout';
+import { ThemeToggle } from './components/theme-toggle';
+import ProfilePage from './components/ProfilePage';
+import { useState } from 'react';
 import { WeightChart } from './components/WeightChart';
 import { WorkoutLogger } from './components/WorkoutLogger';
 import { RecentWorkouts } from './components/RecentWorkouts';
 import { ProgressSummary } from './components/ProgressSummary';
 import { MotivationCard } from './components/MotivationCard';
-import { ThemeToggle } from './components/theme-toggle';
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { api } from './lib/api';
 import type { User, Exercise } from '@myfitness/shared';
 import type { WeightEntry, WorkoutLog } from './lib/mock-data';
+import MyGoalsPage from './pages/MyGoalsPage';
+import GifViewer from './pages/GifViewer';
 
 export default function App() {
   const queryClient = useQueryClient();
@@ -67,137 +71,44 @@ export default function App() {
   const handleLogWorkout = () => {
     if (selectedExercise && workoutDuration) {
       const dateStr = new Date().toISOString().split('T')[0]!;
+      const dur = parseInt(workoutDuration);
+      const intensity: 'low' | 'medium' | 'high' = dur < 20 ? 'low' : dur <= 40 ? 'medium' : 'high';
+      const caloriesBurned = Math.round(dur * 8); // simple estimate
       logWorkoutMutation.mutate({
         exerciseId: selectedExercise,
-        durationMinutes: parseInt(workoutDuration),
+        durationMinutes: dur,
+        intensity,
+        caloriesBurned,
         date: dateStr,
         notes: workoutNotes || undefined
-      });
+      } as any);
     }
   };
 
+  const [showProfilePage, setShowProfilePage] = useState(false);
+  const [activePage, setActivePage] = useState<'dashboard' | 'profile' | 'goals' | 'gifs'>('dashboard');
+  const [selectedGifId, setSelectedGifId] = useState<string | null>(null);
+
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-900">
-      <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-neutral-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-neutral-900/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 hidden md:flex">
-            <a className="mr-6 flex items-center space-x-2" href="/">
-              <span className="font-bold text-black dark:text-white sm:inline-block">MyFitness</span>
-            </a>
-          </div>
-          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+    <div>
+      {activePage === 'profile' ? (
+        <ProfilePage onClose={() => setActivePage('dashboard')} />
+      ) : (
+        // Always render the Dashboard layout for dashboard/goals and keep sidebar visible
+        <>
+          <DashboardLayout
+            profile={profile}
+            onNav={(p: string) => setActivePage(p as any)}
+            onOpenGif={(id: string) => { setSelectedGifId(id); setActivePage('gifs'); }}
+            centerPage={activePage}
+          />
 
-      <main className="container mx-auto p-4">
-        <div className="mb-4 p-4 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-800">
-          <h2 className="text-lg font-semibold mb-2 text-black dark:text-white">Debug Info:</h2>
-          <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <div>
-              <div className="font-medium">Profile</div>
-              <div>Loading: {profileLoading ? "Yes" : "No"}</div>
-              <div>Data: {profile ? "✓" : "✗"}</div>
-            </div>
-            <div>
-              <div className="font-medium">Data Counts</div>
-              <div>Weight Entries: {weightHistory.length}</div>
-              <div>Exercises: {exercises.length}</div>
-              <div>Workout Logs: {workoutLogs.length}</div>
-            </div>
-          </div>
-        </div>
-
-        {profileLoading ? (
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-            <span className="ml-4">Loading your fitness data...</span>
-          </div>
-        ) : profile ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <UserProfileCard
-                profile={profile}
-                onUpdateName={name => updateProfileMutation.mutate({ name })}
-                isUpdating={updateProfileMutation.isPending}
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="md:col-span-2"
-            >
-              <WeightChart
-                weightHistory={weightHistory}
-                currentWeight={profile.weightKg}
-                onAddWeight={addWeightMutation.mutate}
-                isAdding={addWeightMutation.isPending}
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <WorkoutLogger
-                exercises={exercises}
-                onLogWorkout={(exerciseId, duration, notes) => {
-                  const dateStr = new Date().toISOString().split('T')[0]!;
-                  logWorkoutMutation.mutate({
-                    exerciseId,
-                    durationMinutes: duration,
-                    date: dateStr,
-                    notes
-                  });
-                }}
-                isLogging={logWorkoutMutation.isPending}
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <RecentWorkouts
-                workouts={workoutLogs}
-                exercises={exercises}
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <ProgressSummary
-                workouts={workoutLogs}
-                weightChange={
-                  weightHistory.length >= 2
-                    ? (weightHistory[weightHistory.length - 1]?.weight ?? 0) - (weightHistory[0]?.weight ?? 0)
-                    : 0
-                }
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <MotivationCard />
-            </motion.div>
-          </div>
-        ) : null}
-      </main>
+          {/* Render GifViewer as an overlay when requested */}
+          {activePage === 'gifs' && (
+            <GifViewer exerciseId={selectedGifId} onBack={() => setActivePage('dashboard')} />
+          )}
+        </>
+      )}
     </div>
   );
 }
