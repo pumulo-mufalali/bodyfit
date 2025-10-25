@@ -72,7 +72,10 @@ export function Sidebar({ profile, onNav }: { profile?: User | null; onNav?: (pa
   return (
     <aside className="w-72 shrink-0 pr-4">
       <div className="sticky top-6 space-y-6">
-        <div className="bg-muted/80 dark:bg-muted/90 rounded-xl p-4 shadow-sm">
+        <button 
+          onClick={() => onNav?.('profile')} 
+          className="w-full bg-muted/80 dark:bg-muted/90 rounded-xl p-4 shadow-sm hover:bg-muted/90 dark:hover:bg-muted/80 transition-colors relative group"
+        >
           <div className="flex items-center space-x-3">
             <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xl font-semibold">{profile?.name?.charAt(0) ?? 'U'}</div>
             <div>
@@ -91,12 +94,15 @@ export function Sidebar({ profile, onNav }: { profile?: User | null; onNav?: (pa
               <div className="font-medium">{profile?.weightKg ?? '76'} kg</div>
             </div>
           </div>
-        </div>
+
+          <div className="absolute inset-0 rounded-xl border-2 border-blue-500/0 group-hover:border-blue-500/50 transition-colors pointer-events-none" />
+        </button>
 
         <nav className="bg-card rounded-xl p-4 shadow-sm">
           <ul className="space-y-1">
             <NavItem onClick={() => onNav?.('dashboard')}>Home</NavItem>
             <NavItem onClick={() => onNav?.('goals')}>My goals</NavItem>
+            <NavItem onClick={() => onNav?.('profile')}>Profile Settings</NavItem>
             <NavItem>Schedule</NavItem>
             <NavItem>Achievements</NavItem>
             <NavItem>Statistics</NavItem>

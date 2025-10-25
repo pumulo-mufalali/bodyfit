@@ -23,6 +23,7 @@ const getLastNDaysData = (days: number) => {
 };
 
 import MyGoalsPage from '../pages/MyGoalsPage';
+import ProfilePage from './ProfilePage';
 
 export default function DashboardLayout({
   profile,
@@ -92,7 +93,7 @@ export default function DashboardLayout({
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2">
                   <div className="bg-card rounded-xl p-4 shadow-sm">
-                    <MyGoalsPage onBack={() => onNav?.('dashboard')} />
+                    <MyGoalsPage />
                   </div>
                 </div>
                 <div className="lg:col-span-1">
@@ -116,6 +117,32 @@ export default function DashboardLayout({
                 </div>
               </div>
             </div>
+          ) : centerPage === 'profile' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <ProfilePage onClose={() => onNav?.('dashboard')} />
+              </div>
+              <div className="lg:col-span-1 space-y-4">
+                <div className="bg-card rounded-xl p-4 shadow-sm space-y-4">
+                  <div className="text-lg font-semibold">Account Details</div>
+                  <div className="space-y-2">
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                      <div className="text-sm text-muted-foreground">Member Since</div>
+                      <div className="text-xl font-bold mt-1">June 2018</div>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                      <div className="text-sm text-muted-foreground">Last Active</div>
+                      <div className="text-xl font-bold mt-1">Today</div>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                      <div className="text-sm text-muted-foreground">Subscription</div>
+                      <div className="text-xl font-bold mt-1">Pro Member</div>
+                    </div>
+                  </div>
+                </div>
+                <MotivationBanner />
+              </div>
+            </div>
           ) : (
             <>
               <div className="bg-card rounded-xl p-4 shadow-sm">
@@ -132,7 +159,13 @@ export default function DashboardLayout({
                       </div>
                     </div>
 
-                    <div className="mt-4 flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x hide-scrollbar">
+                    <div 
+                      ref={scrollRef}
+                      onPointerDown={handlePointerDown}
+                      onPointerMove={handlePointerMove}
+                      onPointerUp={handlePointerUp}
+                      className={`mt-4 flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x hide-scrollbar ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                    >
                       <StatCard 
                         title="Exercises" 
                         main={`${mockWorkoutLogs.length} Exercises`}

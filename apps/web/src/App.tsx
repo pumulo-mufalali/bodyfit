@@ -91,23 +91,16 @@ export default function App() {
 
   return (
     <div>
-      {activePage === 'profile' ? (
-        <ProfilePage onClose={() => setActivePage('dashboard')} />
-      ) : (
-        // Always render the Dashboard layout for dashboard/goals and keep sidebar visible
-        <>
-          <DashboardLayout
-            profile={profile}
-            onNav={(p: string) => setActivePage(p as any)}
-            onOpenGif={(id: string) => { setSelectedGifId(id); setActivePage('gifs'); }}
-            centerPage={activePage}
-          />
+      <DashboardLayout
+        profile={profile}
+        onNav={(p: string) => setActivePage(p as any)}
+        onOpenGif={(id: string) => { setSelectedGifId(id); setActivePage('gifs'); }}
+        centerPage={activePage}
+      />
 
-          {/* Render GifViewer as an overlay when requested */}
-          {activePage === 'gifs' && (
-            <GifViewer exerciseId={selectedGifId} onBack={() => setActivePage('dashboard')} />
-          )}
-        </>
+      {/* Render GifViewer as an overlay when requested */}
+      {activePage === 'gifs' && (
+        <GifViewer exerciseId={selectedGifId} onBack={() => setActivePage('dashboard')} />
       )}
     </div>
   );
