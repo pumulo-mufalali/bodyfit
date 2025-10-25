@@ -1,5 +1,6 @@
 import React from 'react';
 import type { User } from '@myfitness/shared';
+import { ThemeToggle } from './theme-toggle';
 
 interface Goal {
   id: string;
@@ -100,6 +101,9 @@ export function Sidebar({ profile, onNav }: { profile?: User | null; onNav?: (pa
             <NavItem>Achievements</NavItem>
             <NavItem>Statistics</NavItem>
             <NavItem>Settings</NavItem>
+            <li className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <ThemeToggle />
+            </li>
           </ul>
         </nav>
 

@@ -88,8 +88,33 @@ export default function DashboardLayout({
 
         <div className="lg:col-span-9 space-y-6">
           {centerPage === 'goals' ? (
-            <div className="bg-card rounded-xl p-4 shadow-sm">
-              <MyGoalsPage onBack={() => onNav?.('dashboard')} />
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2">
+                  <div className="bg-card rounded-xl p-4 shadow-sm">
+                    <MyGoalsPage onBack={() => onNav?.('dashboard')} />
+                  </div>
+                </div>
+                <div className="lg:col-span-1">
+                  <div className="bg-card rounded-xl p-4 shadow-sm space-y-4">
+                    <div className="text-lg font-semibold">Goal Insights</div>
+                    <div className="space-y-2">
+                      <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                        <div className="text-sm text-muted-foreground">Goals in progress</div>
+                        <div className="text-2xl font-bold mt-1">3</div>
+                      </div>
+                      <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                        <div className="text-sm text-muted-foreground">Completed this month</div>
+                        <div className="text-2xl font-bold mt-1">2</div>
+                      </div>
+                      <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                        <div className="text-sm text-muted-foreground">Average completion</div>
+                        <div className="text-2xl font-bold mt-1">85%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <>

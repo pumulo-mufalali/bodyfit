@@ -65,15 +65,9 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
+    <div>
       <div className="flex items-center justify-between mb-8">
-        <button
-          className="text-sm px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700"
-          onClick={onBack}
-        >
-          ← Back
-        </button>
-        <h1 className="text-3xl font-bold">My Goals</h1>
+        <h1 className="text-2xl font-bold">My Goals</h1>
         <button className="text-sm px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600" onClick={handleAddGoal}>
           + Add Goal
         </button>
