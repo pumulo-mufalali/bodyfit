@@ -24,6 +24,8 @@ const getLastNDaysData = (days: number) => {
 
 import MyGoalsPage from '../pages/MyGoalsPage';
 import ProfilePage from './ProfilePage';
+import SchedulePage from '../pages/SchedulePage';
+import CreateScheduleForm from './CreateScheduleForm';
 
 export default function DashboardLayout({
   profile,
@@ -50,6 +52,7 @@ export default function DashboardLayout({
   const startXRef = React.useRef(0);
   const scrollLeftRef = React.useRef(0);
   const [isDragging, setIsDragging] = React.useState(false);
+  const [showCreateScheduleForm, setShowCreateScheduleForm] = React.useState(false);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = scrollRef.current;
@@ -138,6 +141,23 @@ export default function DashboardLayout({
                       <div className="text-sm text-muted-foreground">Subscription</div>
                       <div className="text-xl font-bold mt-1">Pro Member</div>
                     </div>
+                  </div>
+                </div>
+                <MotivationBanner />
+              </div>
+            </div>
+          ) : centerPage === 'schedule' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <SchedulePage />
+              </div>
+              <div className="lg:col-span-1 space-y-4">
+                <div className="bg-card rounded-xl p-4 shadow-sm space-y-4">
+                  <div className="text-lg font-semibold">Schedule Actions</div>
+                  <div className="space-y-3">
+                    <button onClick={() => setShowCreateScheduleForm(true)} className="w-full rounded-md px-3 py-2 bg-white/80 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-colors">Create Schedule</button>
+                    <button className="w-full rounded-md px-3 py-2 bg-white/80 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-colors">Edit Schedule</button>
+                    <button className="w-full rounded-md px-3 py-2 bg-red-500/20 text-red-500 dark:bg-red-500/10 hover:bg-red-500/30 dark:hover:bg-red-500/20 transition-colors">Delete Schedule</button>
                   </div>
                 </div>
                 <MotivationBanner />
@@ -259,6 +279,16 @@ export default function DashboardLayout({
               isExercise={modalStat.isExercise}
               onClose={() => setModalStat(null)}
               onOpenGif={(id: string) => { setModalStat(null); onOpenGif?.(id); }}
+            />
+          )}
+
+          {showCreateScheduleForm && (
+            <CreateScheduleForm
+              onClose={() => setShowCreateScheduleForm(false)}
+              onSave={(schedule) => {
+                console.log('Saved schedule:', schedule);
+                // Here you would typically handle the saved data, e.g., send it to an API
+              }}
             />
           )}
         </div>

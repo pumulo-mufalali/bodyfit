@@ -20,3 +20,20 @@
 [2m9:51:07 pm[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/providers/theme-provider.tsx[22m Could not Fast Refresh ("useTheme" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
 [2m9:51:07 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/providers/theme-provider.tsx[22m
 [2m9:51:42 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/providers/theme-provider.tsx, /src/index.css[22m
+[2m9:51:42 pm[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/providers/theme-provider.tsx[22m Could not Fast Refresh ("useTheme" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m9:51:42 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/providers/theme-provider.tsx[22m
+[2m9:56:53 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m9:57:06 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m9:57:06 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/pages/SchedulePage.tsx[22m
+[2m9:57:34 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m9:58:42 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Sidebar.tsx, /src/index.css[22m
+[2m10:02:51 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m10:04:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m10:04:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Sidebar.tsx, /src/index.css[22m
+[2m10:06:51 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m10:08:29 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m10:08:39 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m10:08:47 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m10:11:06 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m
+[2m10:11:06 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/CreateScheduleForm.tsx, /src/index.css[22m
+[2m10:13:39 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SchedulePage.tsx, /src/index.css[22m

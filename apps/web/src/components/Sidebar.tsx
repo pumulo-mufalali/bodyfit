@@ -103,7 +103,7 @@ export function Sidebar({ profile, onNav }: { profile?: User | null; onNav?: (pa
             <NavItem onClick={() => onNav?.('dashboard')}>Home</NavItem>
             <NavItem onClick={() => onNav?.('goals')}>My goals</NavItem>
             <NavItem onClick={() => onNav?.('profile')}>Profile Settings</NavItem>
-            <NavItem>Schedule</NavItem>
+            <NavItem onClick={() => onNav?.('schedule')}>Schedule</NavItem>
             <NavItem>Achievements</NavItem>
             <NavItem>Statistics</NavItem>
             <NavItem>Settings</NavItem>
