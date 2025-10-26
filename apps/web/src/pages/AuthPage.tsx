@@ -22,6 +22,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
       email: userData.email,
       age: 25,
       weightKg: 70,
+      heightCm: 175,
       theme: "system",
       fitnessGoal: "Build strength and improve endurance"
     };

@@ -1,22 +1,16 @@
-import React from 'react';
-import DashboardLayout from './components/DashboardLayout';
-import { ThemeToggle } from './components/theme-toggle';
-import ProfilePage from './components/ProfilePage';
-import { useState } from 'react';
-import { WeightChart } from './components/WeightChart';
-import { WorkoutLogger } from './components/WorkoutLogger';
-import { RecentWorkouts } from './components/RecentWorkouts';
-import { ProgressSummary } from './components/ProgressSummary';
-import { MotivationCard } from './components/MotivationCard';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { api } from './lib/api';
-import type { User, Exercise } from '@myfitness/shared';
-import type { WeightEntry, WorkoutLog } from './lib/mock-data';
-import MyGoalsPage from './pages/MyGoalsPage';
-import GifViewer from './pages/GifViewer';
-import ProtectedRoute from './components/ProtectedRoute';
-import { useAuth } from './providers/auth-provider';
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import GifViewer from "./pages/GifViewer";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardLayout from "./components/DashboardLayout";
+import ProfilePage from "./components/ProfilePage";
+import MyGoalsPage from "./pages/MyGoalsPage";
+import SchedulePage from "./pages/SchedulePage";
+import AchievementsPage from "./pages/AchievementsPage";
+import { useAuth } from "./providers/auth-provider";
+import { weightService, workoutService, exerciseService } from "./lib/firebase-data-service";
+import type { User, Exercise } from "@myfitness/shared";
+import type { WeightEntry, WorkoutLog } from "./lib/mock-data"; // Or move to shared, update as needed
 
 function DashboardApp() {
   const queryClient = useQueryClient();
@@ -26,45 +20,34 @@ function DashboardApp() {
   const [workoutDuration, setWorkoutDuration] = useState("");
   const [workoutNotes, setWorkoutNotes] = useState("");
 
-  const { data: profile, isLoading: profileLoading } = useQuery<User>({
-    queryKey: ['user', 'profile'],
-    queryFn: api.user.getProfile
-  });
-
+  // Use only Firebase services, no more mock api.
   const { data: weightHistory = [] } = useQuery<WeightEntry[]>({
-    queryKey: ['weight', 'history'],
-    queryFn: api.weight.getHistory
+    queryKey: ['weight', 'history', user?.uid],
+    queryFn: () => user?.uid ? weightService.getHistory(user.uid) : Promise.resolve([]),
+    enabled: !!user?.uid,
   });
-
   const { data: exercises = [] } = useQuery<Exercise[]>({
-    queryKey: ['workouts', 'exercises'],
-    queryFn: api.workouts.getExercises
+    queryKey: ['exercises'],
+    queryFn: exerciseService.getExercises,
   });
-
   const { data: workoutLogs = [] } = useQuery<WorkoutLog[]>({
-    queryKey: ['workouts', 'logs'],
-    queryFn: api.workouts.getLogs
-  });
-
-  const updateProfileMutation = useMutation({
-    mutationFn: (input: Partial<User>) => api.user.updateProfile(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
-    }
+    queryKey: ['workouts', 'logs', user?.uid],
+    queryFn: () => user?.uid ? workoutService.getLogs(user.uid) : Promise.resolve([]),
+    enabled: !!user?.uid,
   });
 
   const addWeightMutation = useMutation({
-    mutationFn: (weight: number) => api.weight.addEntry(weight),
+    mutationFn: (weight: number) => user ? weightService.addEntry(user.uid, weight) : Promise.resolve([]),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weight', 'history'] });
+      queryClient.invalidateQueries({ queryKey: ['weight', 'history', user?.uid] });
       setNewWeight("");
     }
   });
 
   const logWorkoutMutation = useMutation({
-    mutationFn: (data: Omit<WorkoutLog, 'id'>) => api.workouts.logWorkout(data),
+    mutationFn: (data: Omit<WorkoutLog, 'id'>) => user ? workoutService.logWorkout(user.uid, data) : Promise.resolve(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workouts', 'logs'] });
+      queryClient.invalidateQueries({ queryKey: ['workouts', 'logs', user?.uid] });
       setSelectedExercise("");
       setWorkoutDuration("");
       setWorkoutNotes("");
@@ -88,20 +71,17 @@ function DashboardApp() {
     }
   };
 
-  const [showProfilePage, setShowProfilePage] = useState(false);
   const [activePage, setActivePage] = useState<'dashboard' | 'profile' | 'goals' | 'gifs' | 'achievements'>('dashboard');
   const [selectedGifId, setSelectedGifId] = useState<string | null>(null);
 
   return (
     <div>
       <DashboardLayout
-        profile={profile}
         onNav={(p: string) => setActivePage(p as any)}
         onOpenGif={(id: string) => { setSelectedGifId(id); setActivePage('gifs'); }}
         centerPage={activePage}
       />
-
-      {/* Render GifViewer as an overlay when requested */}
+      {/* Gif Viewer and profile etc. to render here as needed by your nav logic, e.g. ProfilePage */}
       {activePage === 'gifs' && (
         <GifViewer exerciseId={selectedGifId} onBack={() => setActivePage('dashboard')} />
       )}

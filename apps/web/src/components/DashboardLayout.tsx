@@ -7,8 +7,10 @@ import StatsChart from './StatsChart';
 import ProgressModal from './ProgressModal';
 import { MotivationCard } from './MotivationCard';
 import type { User } from '@myfitness/shared';
-import { mockWorkoutLogs, mockWeightHistory } from '../lib/mock-data';
 import type { WorkoutLog } from '../lib/mock-data';
+import { useAuth } from '../providers/auth-provider';
+import { useQuery } from '@tanstack/react-query';
+import { workoutService } from '../lib/firebase-data-service';
 
 
 // Helper to get last N days data
@@ -32,16 +34,34 @@ import AchievementsPage from '../pages/AchievementsPage';
 import DetailedStatsModal from './DetailedStatsModal';
 
 export default function DashboardLayout({
-  profile,
   onNav,
   onOpenGif,
   centerPage,
 }: {
-  profile?: User | null;
   onNav?: (page: string) => void;
   onOpenGif?: (exerciseId: string) => void;
   centerPage?: 'dashboard' | 'goals' | 'gifs' | string;
 }) {
+  const { user } = useAuth();
+  
+  // Convert auth user to User type
+  const currentUser = user ? {
+    uid: user.uid,
+    name: user.name,
+    email: user.email,
+    age: user.age,
+    weightKg: user.weightKg,
+    heightCm: user.heightCm,
+    theme: user.theme as "light" | "dark" | "system",
+    fitnessGoal: user.fitnessGoal
+  } : null;
+
+  // Get workout logs from Firebase
+  const { data: workoutLogs = [] } = useQuery<WorkoutLog[]>({
+    queryKey: ['workouts', 'logs', user?.uid],
+    queryFn: () => workoutService.getLogs(user!.uid),
+    enabled: !!user?.uid
+  });
   const labels = Array.from({ length: 12 }).map((_, i) => `W${i + 1}`);
   const [modalStat, setModalStat] = React.useState<null | {
     title: string;
@@ -60,8 +80,8 @@ export default function DashboardLayout({
   const [showDetailedStats, setShowDetailedStats] = React.useState(false);
 
   // Data for StatCards and DetailedStatsModal
-  const totalExercises = mockWorkoutLogs.length;
-  const totalExerciseMinutes = mockWorkoutLogs.reduce((acc, log) => acc + log.durationMinutes, 0);
+  const totalExercises = workoutLogs.length;
+  const totalExerciseMinutes = workoutLogs.reduce((acc, log) => acc + log.durationMinutes, 0);
   const totalMeals = 6; // From StatCard
   const totalCalories = 1604; // From StatCard
   const averageSleep = 8; // From StatCard
@@ -106,7 +126,7 @@ export default function DashboardLayout({
 
       <div className="relative z-10 container mx-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-3">
-          <Sidebar profile={profile} onNav={onNav} />
+          <Sidebar profile={currentUser} onNav={onNav} />
         </div>
 
         <div className="lg:col-span-9 space-y-6">
@@ -213,7 +233,7 @@ export default function DashboardLayout({
           ) : (
             <>
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50">
-                <HeaderBar title="TRACK FITNESS" weekLine="Day 2, Week 6 — 7th June, 2018" />
+                <HeaderBar title="FITNESS TRACKER" weekLine="Day 2, Week 6 — 7th June, 2018" />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -235,14 +255,14 @@ export default function DashboardLayout({
                     >
                       <StatCard 
                         title="Exercises" 
-                        main={`${mockWorkoutLogs.length} Exercises`}
-                        sub={`${mockWorkoutLogs.reduce((acc, log) => acc + log.durationMinutes, 0)} mins`}
-                        progress={{ value: mockWorkoutLogs.length, total: 10 }}
+                        main={`${workoutLogs.length} Exercises`}
+                        sub={`${workoutLogs.reduce((acc, log) => acc + log.durationMinutes, 0)} mins`}
+                        progress={{ value: workoutLogs.length, total: 10 }}
                         gradientClass="from-cyan-400 to-blue-500"
                         onOpen={() => setModalStat({
                           title: 'Exercises',
-                          progress: { value: mockWorkoutLogs.length, total: 10 },
-                          data: mockWorkoutLogs,
+                          progress: { value: workoutLogs.length, total: 10 },
+                          data: workoutLogs,
                           isExercise: true
                         })}
                       />

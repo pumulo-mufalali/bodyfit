@@ -6,6 +6,7 @@ interface User {
   email: string;
   age: number;
   weightKg: number;
+  heightCm?: number;
   theme: string;
   fitnessGoal: string;
 }
