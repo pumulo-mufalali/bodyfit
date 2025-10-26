@@ -4,12 +4,15 @@ import "./index.css";
 import App from "./App";
 import { ThemeProvider } from "./providers/theme-provider";
 import { APIProvider } from "./providers/api-provider";
+import { AuthProvider } from "./providers/auth-provider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider>
       <APIProvider>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </APIProvider>
     </ThemeProvider>
   </React.StrictMode>

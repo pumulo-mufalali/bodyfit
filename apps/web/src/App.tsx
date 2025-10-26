@@ -15,9 +15,12 @@ import type { User, Exercise } from '@myfitness/shared';
 import type { WeightEntry, WorkoutLog } from './lib/mock-data';
 import MyGoalsPage from './pages/MyGoalsPage';
 import GifViewer from './pages/GifViewer';
+import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './providers/auth-provider';
 
-export default function App() {
+function DashboardApp() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [newWeight, setNewWeight] = useState("");
   const [selectedExercise, setSelectedExercise] = useState("");
   const [workoutDuration, setWorkoutDuration] = useState("");
@@ -86,7 +89,7 @@ export default function App() {
   };
 
   const [showProfilePage, setShowProfilePage] = useState(false);
-  const [activePage, setActivePage] = useState<'dashboard' | 'profile' | 'goals' | 'gifs'>('dashboard');
+  const [activePage, setActivePage] = useState<'dashboard' | 'profile' | 'goals' | 'gifs' | 'achievements'>('dashboard');
   const [selectedGifId, setSelectedGifId] = useState<string | null>(null);
 
   return (
@@ -103,5 +106,13 @@ export default function App() {
         <GifViewer exerciseId={selectedGifId} onBack={() => setActivePage('dashboard')} />
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ProtectedRoute>
+      <DashboardApp />
+    </ProtectedRoute>
   );
 }

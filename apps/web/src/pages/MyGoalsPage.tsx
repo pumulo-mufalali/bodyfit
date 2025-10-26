@@ -67,8 +67,11 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">My Goals</h1>
-        <button className="text-sm px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600" onClick={handleAddGoal}>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">My Goals</h1>
+        <button 
+          className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" 
+          onClick={handleAddGoal}
+        >
           + Add Goal
         </button>
       </div>
@@ -77,58 +80,65 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
           const progress = Math.min(100, Math.round((goal.current / goal.target) * 100));
           const daysLeft = Math.ceil((new Date(goal.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
           return (
-            <div key={goal.id} className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow space-y-3">
+            <div key={goal.id} className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 space-y-4 hover:shadow-2xl transition-all duration-300">
               <div className="flex justify-between items-center">
                 <div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[goal.category].bg} ${categoryColors[goal.category].text}`}>
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${categoryColors[goal.category].bg} ${categoryColors[goal.category].text}`}>
                     {goal.category.charAt(0).toUpperCase() + goal.category.slice(1)}
                   </span>
-                  <h2 className="font-semibold text-lg mt-1">{goal.title}</h2>
+                  <h2 className="font-bold text-xl mt-2 text-gray-900 dark:text-white">{goal.title}</h2>
                 </div>
-                <button className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-300" title="Edit Goal" onClick={() => handleEditGoal(goal)}>
+                <button 
+                  className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-300 transition-all duration-200" 
+                  title="Edit Goal" 
+                  onClick={() => handleEditGoal(goal)}
+                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="text-base font-medium">{goal.current}{goal.unit}</div>
-                <div className="text-xs text-muted-foreground">of {goal.target}{goal.unit}</div>
+              <div className="flex items-center gap-3">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{goal.current}{goal.unit}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">of {goal.target}{goal.unit}</div>
+                <div className="ml-auto text-lg font-semibold text-blue-600 dark:text-blue-400">{progress}%</div>
               </div>
-              <div className="relative w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="relative w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div 
-                  className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all duration-300"
+                  className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <div className="text-xs text-muted-foreground">
-                {daysLeft} days remaining
+              <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                {daysLeft > 0 ? `${daysLeft} days remaining` : 'Deadline passed'}
               </div>
             </div>
           );
         })}
       </div>
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={handleCloseModal} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">{editGoal ? 'Edit Goal' : 'Add Goal'}</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseModal} />
+          <div className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-md border border-white/20 dark:border-gray-700/50">
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {editGoal ? 'Edit Goal' : 'Add Goal'}
+            </h2>
             {/* Simple form placeholder */}
             <form className="space-y-4">
-              <input className="w-full px-3 py-2 rounded border" placeholder="Goal Title" defaultValue={editGoal?.title ?? ''} />
-              <input className="w-full px-3 py-2 rounded border" placeholder="Target" type="number" defaultValue={editGoal?.target ?? ''} />
-              <input className="w-full px-3 py-2 rounded border" placeholder="Current" type="number" defaultValue={editGoal?.current ?? ''} />
-              <input className="w-full px-3 py-2 rounded border" placeholder="Unit" defaultValue={editGoal?.unit ?? ''} />
-              <select className="w-full px-3 py-2 rounded border" defaultValue={editGoal?.category ?? 'weight'}>
+              <input className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Goal Title" defaultValue={editGoal?.title ?? ''} />
+              <input className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Target" type="number" defaultValue={editGoal?.target ?? ''} />
+              <input className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Current" type="number" defaultValue={editGoal?.current ?? ''} />
+              <input className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Unit" defaultValue={editGoal?.unit ?? ''} />
+              <select className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" defaultValue={editGoal?.category ?? 'weight'}>
                 <option value="weight">Weight</option>
                 <option value="strength">Strength</option>
                 <option value="cardio">Cardio</option>
                 <option value="nutrition">Nutrition</option>
               </select>
-              <input className="w-full px-3 py-2 rounded border" placeholder="Deadline" type="date" defaultValue={editGoal?.deadline ?? ''} />
-              <div className="flex justify-end gap-2">
-                <button type="button" className="px-4 py-2 rounded bg-gray-200" onClick={handleCloseModal}>Cancel</button>
-                <button type="submit" className="px-4 py-2 rounded bg-blue-500 text-white">Save</button>
+              <input className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Deadline" type="date" defaultValue={editGoal?.deadline ?? ''} />
+              <div className="flex justify-end gap-3 pt-4">
+                <button type="button" className="px-6 py-3 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" onClick={handleCloseModal}>Cancel</button>
+                <button type="submit" className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl">Save</button>
               </div>
             </form>
           </div>

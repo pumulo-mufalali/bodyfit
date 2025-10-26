@@ -5,13 +5,20 @@ import { mockExercises, mockWeightHistory, mockWorkoutLogs, WeightEntry, Workout
 type User = z.infer<typeof UserSchema>;
 
 // Simple in-memory mock DB
-let mockUser: User = {
-  uid: "demo",
-  name: "Demo",
-  age: 25,
-  weightKg: 70,
-  theme: "system",
-  fitnessGoal: "Build strength and improve endurance"
+let mockUser: User | null = null;
+
+// Initialize with demo user if none exists
+const initializeDemoUser = () => {
+  if (!mockUser) {
+    mockUser = {
+      uid: "demo",
+      name: "Demo User",
+      age: 25,
+      weightKg: 70,
+      theme: "system",
+      fitnessGoal: "Build strength and improve endurance"
+    };
+  }
 };
 
 // HTTP API client
@@ -20,12 +27,14 @@ const API_BASE_URL = "https://api.myfitness.app";
 export const api = {
   user: {
     getProfile: async (): Promise<User> => {
-      return mockUser;
+      initializeDemoUser();
+      return mockUser!;
     },
     
     updateProfile: async (input: Partial<User>): Promise<User> => {
-      mockUser = { ...mockUser, ...input };
-      return mockUser;
+      initializeDemoUser();
+      mockUser = { ...mockUser!, ...input };
+      return mockUser!;
     }
   },
 

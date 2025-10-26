@@ -20,16 +20,22 @@ function CogIcon() {
 
 export default function HeaderBar({ title, weekLine }: { title: string; weekLine?: string }) {
   return (
-    <div className="flex items-center justify-between py-3">
-      <div className="flex items-center space-x-4">
-        <div className="text-xl font-bold">{title}</div>
+    <div className="flex items-center justify-between py-4">
+      <div className="flex items-center space-x-6">
+        <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{title}</div>
       </div>
 
-      <div className="text-sm text-muted-foreground">{weekLine ?? 'Day 2, Week 6 — Today, 7th June, 2018'}</div>
+      <div className="text-sm text-gray-600 dark:text-gray-400 font-medium bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-xl">
+        {weekLine ?? 'Day 2, Week 6 — Today, 7th June, 2018'}
+      </div>
 
       <div className="flex items-center space-x-3">
-        <button className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"><BellIcon /></button>
-        <button className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"><CogIcon /></button>
+        <button className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
+          <BellIcon />
+        </button>
+        <button className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
+          <CogIcon />
+        </button>
       </div>
     </div>
   );

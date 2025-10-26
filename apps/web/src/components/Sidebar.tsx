@@ -1,6 +1,8 @@
 import React from 'react';
 import type { User } from '@myfitness/shared';
 import { ThemeToggle } from './theme-toggle';
+import { useAuth } from '../providers/auth-provider';
+import { LogOut } from 'lucide-react';
 
 interface Goal {
   id: string;
@@ -58,7 +60,11 @@ interface NavItemProps {
 const NavItem = ({ children, active, onClick }: NavItemProps) => (
   <li>
     <button
-      className={`w-full text-left px-3 py-2 rounded-md transition ${active ? 'bg-blue-100 dark:bg-blue-900/30 font-semibold' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+      className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
+        active 
+          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg' 
+          : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:shadow-md'
+      }`}
       onClick={onClick}
     >
       {children}
@@ -69,53 +75,69 @@ const NavItem = ({ children, active, onClick }: NavItemProps) => (
 
 
 export function Sidebar({ profile, onNav }: { profile?: User | null; onNav?: (page: string) => void }) {
+  const { logout } = useAuth();
+
   return (
     <aside className="w-72 shrink-0 pr-4">
       <div className="sticky top-6 space-y-6">
         <button 
           onClick={() => onNav?.('profile')} 
-          className="w-full bg-muted/80 dark:bg-muted/90 rounded-xl p-4 shadow-sm hover:bg-muted/90 dark:hover:bg-muted/80 transition-colors relative group"
+          className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 relative group border border-white/20 dark:border-gray-700/50"
         >
-          <div className="flex items-center space-x-3">
-            <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xl font-semibold">{profile?.name?.charAt(0) ?? 'U'}</div>
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
+              {profile?.name?.charAt(0) ?? 'U'}
+            </div>
             <div>
-              <div className="text-lg font-semibold text-black dark:text-white">{profile?.name ?? 'User'}</div>
-              <div className="text-sm text-muted-foreground">{profile?.age ? `${profile.age} years` : '—'}</div>
+              <div className="text-xl font-bold text-gray-900 dark:text-white">{profile?.name ?? 'User'}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{profile?.age ? `${profile.age} years old` : '—'}</div>
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-            <div className="bg-white/50 dark:bg-black/20 rounded-md p-2 text-center">
-              <div className="text-xs">Height</div>
-              <div className="font-medium">185 cm</div>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl p-3 text-center border border-blue-200/50 dark:border-blue-700/50">
+              <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">Height</div>
+              <div className="font-bold text-blue-700 dark:text-blue-300">185 cm</div>
             </div>
-            <div className="bg-white/50 dark:bg-black/20 rounded-md p-2 text-center">
-              <div className="text-xs">Weight</div>
-              <div className="font-medium">{profile?.weightKg ?? '76'} kg</div>
+            <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-3 text-center border border-green-200/50 dark:border-green-700/50">
+              <div className="text-xs text-green-600 dark:text-green-400 font-medium">Weight</div>
+              <div className="font-bold text-green-700 dark:text-green-300">{profile?.weightKg ?? '76'} kg</div>
             </div>
           </div>
 
-          <div className="absolute inset-0 rounded-xl border-2 border-blue-500/0 group-hover:border-blue-500/50 transition-colors pointer-events-none" />
+          <div className="absolute inset-0 rounded-2xl border-2 border-blue-500/0 group-hover:border-blue-500/30 transition-all duration-300 pointer-events-none" />
         </button>
 
-        <nav className="bg-card rounded-xl p-4 shadow-sm">
-          <ul className="space-y-1">
-            <NavItem onClick={() => onNav?.('dashboard')}>Home</NavItem>
-            <NavItem onClick={() => onNav?.('goals')}>My goals</NavItem>
-            <NavItem onClick={() => onNav?.('profile')}>Profile Settings</NavItem>
-            <NavItem onClick={() => onNav?.('schedule')}>Schedule</NavItem>
-            <NavItem>Achievements</NavItem>
-            <NavItem>Statistics</NavItem>
-            <NavItem>Settings</NavItem>
-            <li className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50">
+          <ul className="space-y-2">
+            <NavItem onClick={() => onNav?.('dashboard')}>🏠 Home</NavItem>
+            <NavItem onClick={() => onNav?.('goals')}>🎯 My Goals</NavItem>
+            <NavItem onClick={() => onNav?.('profile')}>👤 Profile Settings</NavItem>
+            <NavItem onClick={() => onNav?.('schedule')}>📅 Schedule</NavItem>
+            <NavItem onClick={() => onNav?.('achievements')}>🏆 Achievements</NavItem>
+            <NavItem>📊 Statistics</NavItem>
+            <NavItem>⚙️ Settings</NavItem>
+            <li className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
               <ThemeToggle />
+            </li>
+            <li className="pt-2">
+              <button
+                onClick={logout}
+                className="w-full text-left px-4 py-3 rounded-xl transition-all duration-200 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center space-x-3 font-medium hover:shadow-md"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Sign Out</span>
+              </button>
             </li>
           </ul>
         </nav>
 
-        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 shadow-sm text-sm">
-          <div className="font-semibold">CONGRATULATIONS!</div>
-          <div className="mt-2 text-muted-foreground">You have unlocked the "Expert" level.</div>
+        <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6 shadow-xl border border-blue-200/50 dark:border-blue-700/50">
+          <div className="text-center">
+            <div className="text-2xl mb-2">🎉</div>
+            <div className="font-bold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">CONGRATULATIONS!</div>
+            <div className="mt-2 text-gray-600 dark:text-gray-400 text-sm">You have unlocked the "Expert" level.</div>
+          </div>
         </div>
       </div>
     </aside>
