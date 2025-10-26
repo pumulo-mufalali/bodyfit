@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, User, Dumbbell } from 'lucide-react';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 interface SignUpFormProps {
-  onSignUp: (data: { name: string; email: string; password: string; confirmPassword: string }) => void;
+  onSuccess?: (user: any) => void;
   onSwitchToLogin: () => void;
   isLoading?: boolean;
 }
 
-export default function SignUpForm({ onSignUp, onSwitchToLogin, isLoading = false }: SignUpFormProps) {
+export default function SignUpForm({ onSuccess, onSwitchToLogin, isLoading: externalLoading = false }: SignUpFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,11 +19,13 @@ export default function SignUpForm({ onSignUp, onSwitchToLogin, isLoading = fals
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ 
     name?: string; 
     email?: string; 
     password?: string; 
-    confirmPassword?: string; 
+    confirmPassword?: string;
+    general?: string;
   }>({});
 
   const validateForm = () => {
@@ -29,7 +33,8 @@ export default function SignUpForm({ onSignUp, onSwitchToLogin, isLoading = fals
       name?: string; 
       email?: string; 
       password?: string; 
-      confirmPassword?: string; 
+      confirmPassword?: string;
+      general?: string;
     } = {};
     
     if (!formData.name.trim()) {
@@ -58,20 +63,76 @@ export default function SignUpForm({ onSignUp, onSwitchToLogin, isLoading = fals
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+      case 'auth/email-already-in-use':
+        return 'An account with this email already exists';
+      case 'auth/invalid-email':
+        return 'Invalid email address';
+      case 'auth/weak-password':
+        return 'Password is too weak. Please choose a stronger password';
+      case 'auth/operation-not-allowed':
+        return 'Email/password accounts are not enabled';
+      case 'auth/network-request-failed':
+        return 'Network error. Please check your connection';
+      default:
+        return 'Failed to create account. Please try again';
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      onSignUp(formData);
+    
+    // Clear previous errors
+    setErrors({});
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
+      
+      // Update the user's display name
+      await updateProfile(user, {
+        displayName: formData.name
+      });
+      
+      // Create user object for the parent component
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: formData.name,
+        emailVerified: user.emailVerified
+      };
+
+      // Call success callback if provided
+      if (onSuccess) {
+        onSuccess(userData);
+      }
+      
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      setErrors({
+        general: getErrorMessage(error.code)
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [field]: e.target.value }));
     // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+    if (errors[field] || errors.general) {
+      setErrors(prev => ({ ...prev, [field]: undefined, general: undefined }));
     }
   };
+
+  const isFormLoading = isLoading || externalLoading;
 
   return (
     <motion.div
@@ -228,6 +289,13 @@ export default function SignUpForm({ onSignUp, onSwitchToLogin, isLoading = fals
             )}
           </div>
 
+          {/* General Error Message */}
+          {errors.general && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <p className="text-sm text-red-600 dark:text-red-400">{errors.general}</p>
+            </div>
+          )}
+
           {/* Terms and Conditions */}
           <div className="flex items-start">
             <div className="flex items-center h-5">
@@ -256,10 +324,10 @@ export default function SignUpForm({ onSignUp, onSwitchToLogin, isLoading = fals
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isFormLoading}
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
-            {isLoading ? (
+            {isFormLoading ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 Creating account...

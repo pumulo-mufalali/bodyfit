@@ -9,6 +9,8 @@ const config = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+console.log("Firebase config:", config);
+
 if (import.meta.env.DEV) {
   const missing = Object.entries(config).filter(([, v]) => !v);
   if (missing.length) {

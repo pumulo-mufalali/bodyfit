@@ -14,58 +14,20 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
-  const handleLogin = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock successful login
-      const mockUser = {
-        uid: "demo-user",
-        name: "Demo User",
-        email: email,
-        age: 25,
-        weightKg: 70,
-        theme: "system",
-        fitnessGoal: "Build strength and improve endurance"
-      };
-      
-      login(mockUser);
-      onAuthSuccess(mockUser);
-    } catch (error) {
-      console.error('Login failed:', error);
-      // In a real app, you'd show an error message here
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSignUp = async (data: { name: string; email: string; password: string; confirmPassword: string }) => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock successful signup
-      const mockUser = {
-        uid: "new-user",
-        name: data.name,
-        email: data.email,
-        age: 25,
-        weightKg: 70,
-        theme: "system",
-        fitnessGoal: "Build strength and improve endurance"
-      };
-      
-      login(mockUser);
-      onAuthSuccess(mockUser);
-    } catch (error) {
-      console.error('Signup failed:', error);
-      // In a real app, you'd show an error message here
-    } finally {
-      setIsLoading(false);
-    }
+  const handleAuthSuccess = (userData: any) => {
+    // Convert Firebase user data to our app's user format
+    const appUser = {
+      uid: userData.uid,
+      name: userData.displayName || userData.email?.split('@')[0] || 'User',
+      email: userData.email,
+      age: 25,
+      weightKg: 70,
+      theme: "system",
+      fitnessGoal: "Build strength and improve endurance"
+    };
+    
+    login(appUser);
+    onAuthSuccess(appUser);
   };
 
   return (
@@ -107,13 +69,13 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
         >
           {isLogin ? (
             <LoginForm
-              onLogin={handleLogin}
+              onSuccess={handleAuthSuccess}
               onSwitchToSignUp={() => setIsLogin(false)}
               isLoading={isLoading}
             />
           ) : (
             <SignUpForm
-              onSignUp={handleSignUp}
+              onSuccess={handleAuthSuccess}
               onSwitchToLogin={() => setIsLogin(true)}
               isLoading={isLoading}
             />

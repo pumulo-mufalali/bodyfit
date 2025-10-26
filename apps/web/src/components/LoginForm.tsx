@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Dumbbell } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 interface LoginFormProps {
-  onLogin: (email: string, password: string) => void;
+  onSuccess?: (user: any) => void;
   onSwitchToSignUp: () => void;
   isLoading?: boolean;
 }
 
-export default function LoginForm({ onLogin, onSwitchToSignUp, isLoading = false }: LoginFormProps) {
+export default function LoginForm({ onSuccess, onSwitchToSignUp, isLoading: externalLoading = false }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; general?: string } = {};
     
     if (!email) {
       newErrors.email = 'Email is required';
@@ -33,12 +36,78 @@ export default function LoginForm({ onLogin, onSwitchToSignUp, isLoading = false
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      onLogin(email, password);
+  const getErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+      case 'auth/user-not-found':
+        return 'No account found with this email address';
+      case 'auth/wrong-password':
+        return 'Incorrect password';
+      case 'auth/invalid-email':
+        return 'Invalid email address';
+      case 'auth/user-disabled':
+        return 'This account has been disabled';
+      case 'auth/too-many-requests':
+        return 'Too many failed attempts. Please try again later';
+      case 'auth/network-request-failed':
+        return 'Network error. Please check your connection';
+      default:
+        return 'Invalid credentials. Please try again';
     }
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Clear previous errors
+    setErrors({});
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Create user object for the parent component
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || email.split('@')[0],
+        emailVerified: user.emailVerified
+      };
+
+      // Call success callback if provided
+      if (onSuccess) {
+        onSuccess(userData);
+      }
+      
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setErrors({
+        general: getErrorMessage(error.code)
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: 'email' | 'password') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (field === 'email') {
+      setEmail(e.target.value);
+    } else {
+      setPassword(e.target.value);
+    }
+    
+    // Clear errors when user starts typing
+    if (errors[field] || errors.general) {
+      setErrors(prev => ({ ...prev, [field]: undefined, general: undefined }));
+    }
+  };
+
+  const isFormLoading = isLoading || externalLoading;
 
   return (
     <motion.div
@@ -78,7 +147,7 @@ export default function LoginForm({ onLogin, onSwitchToSignUp, isLoading = false
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleInputChange('email')}
                 className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                   errors.email 
                     ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
@@ -105,7 +174,7 @@ export default function LoginForm({ onLogin, onSwitchToSignUp, isLoading = false
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handleInputChange('password')}
                 className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                   errors.password 
                     ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
@@ -129,6 +198,13 @@ export default function LoginForm({ onLogin, onSwitchToSignUp, isLoading = false
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
             )}
           </div>
+
+          {/* General Error Message */}
+          {errors.general && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <p className="text-sm text-red-600 dark:text-red-400">{errors.general}</p>
+            </div>
+          )}
 
           {/* Remember Me & Forgot Password */}
           <div className="flex items-center justify-between">
@@ -154,10 +230,10 @@ export default function LoginForm({ onLogin, onSwitchToSignUp, isLoading = false
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isFormLoading}
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
-            {isLoading ? (
+            {isFormLoading ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 Signing in...
