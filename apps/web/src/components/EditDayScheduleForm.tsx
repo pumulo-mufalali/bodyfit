@@ -39,7 +39,7 @@ export default function EditDayScheduleForm({ day, initialItems, onClose, onSave
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
       <div className="bg-card rounded-xl p-6 shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Edit Schedule for {day}</h2>
         <form onSubmit={handleSubmit}>

@@ -118,17 +118,6 @@ export function ProfilePage({ onClose }: { onClose: () => void }) {
           )}
           
           <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 dark:border-gray-700/50">
-            {/* Debug button */}
-            <button 
-              onClick={() => {
-                console.log('Test button clicked');
-                updateProfileMutation.mutate({ age: 25, weightKg: 70, heightCm: 175, fitnessGoal: "Test goal" });
-              }}
-              className="mb-4 px-4 py-2 bg-red-500 text-white rounded"
-            >
-              Test Save (Debug)
-            </button>
-            
             <UserProfileCard
               profile={currentProfile}
               onUpdateProfile={(updates) => updateProfileMutation.mutate(updates)}

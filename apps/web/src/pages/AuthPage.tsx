@@ -48,17 +48,6 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-2xl shadow-lg">
-              <Dumbbell className="w-12 h-12 text-white" />
-            </div>
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            MyFitness
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Your personal fitness companion
-          </p>
         </motion.div>
 
         {/* Auth Form */}

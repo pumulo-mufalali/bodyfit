@@ -41,7 +41,7 @@ export default function CreateScheduleForm({ onClose, onSave }: { onClose: () =>
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
       <div className="bg-card rounded-xl p-6 shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold mb-4">Create Weekly Schedule</h2>
         <form onSubmit={handleSubmit}>

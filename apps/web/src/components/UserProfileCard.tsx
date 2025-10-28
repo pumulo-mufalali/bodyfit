@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { User } from "@myfitness/shared";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User as UserIcon, Weight, Ruler, Target, Save } from "lucide-react";
 
 interface UserProfileCardProps {
@@ -20,6 +20,16 @@ export function UserProfileCard({
     heightCm: profile.heightCm || 0,
     fitnessGoal: profile.fitnessGoal || "",
   });
+
+  // Update formData when profile changes (after successful save)
+  useEffect(() => {
+    setFormData({
+      age: profile.age || 0,
+      weightKg: profile.weightKg || 0,
+      heightCm: profile.heightCm || 0,
+      fitnessGoal: profile.fitnessGoal || "",
+    });
+  }, [profile]);
 
   const [errors, setErrors] = useState<{
     age?: string;

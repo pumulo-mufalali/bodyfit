@@ -20,8 +20,11 @@ export async function updateUserProfile(uid: string, updates: Partial<User>) {
   console.log('firebase-user-service - updateUserProfile called with:', { uid, updates });
   const docRef = doc(db, usersCollection, uid);
   console.log('firebase-user-service - Document reference created:', docRef.path);
-  await updateDoc(docRef, updates);
-  console.log('firebase-user-service - updateDoc completed successfully');
+  // Ensure uid is included in the updates
+  const updatesWithUid = { ...updates, uid };
+  // Use setDoc with merge: true so it creates the document if it doesn't exist
+  await setDoc(docRef, updatesWithUid, { merge: true });
+  console.log('firebase-user-service - setDoc completed successfully');
 }
 
 export async function createInitialUserProfile(uid: string, email: string, displayName?: string): Promise<User> {

@@ -4,52 +4,6 @@ import { ThemeToggle } from './theme-toggle';
 import { useAuth } from '../providers/auth-provider';
 import { LogOut } from 'lucide-react';
 
-interface Goal {
-  id: string;
-  title: string;
-  target: number;
-  current: number;
-  unit: string;
-  category: 'weight' | 'strength' | 'cardio' | 'nutrition';
-  deadline: string;
-}
-
-const mockGoals: Goal[] = [
-  {
-    id: 'g1',
-    title: 'Weight Loss',
-    target: 70,
-    current: 75,
-    unit: 'kg',
-    category: 'weight',
-    deadline: '2025-12-31'
-  },
-  {
-    id: 'g2',
-    title: '5K Run Time',
-    target: 25,
-    current: 28,
-    unit: 'min',
-    category: 'cardio',
-    deadline: '2025-11-30'
-  },
-  {
-    id: 'g3',
-    title: 'Push-ups',
-    target: 50,
-    current: 35,
-    unit: 'reps',
-    category: 'strength',
-    deadline: '2025-11-15'
-  }
-];
-
-const categoryColors = {
-  weight: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-600 dark:text-purple-400' },
-  strength: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400' },
-  cardio: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400' },
-  nutrition: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400' }
-};
 
 
 interface NavItemProps {

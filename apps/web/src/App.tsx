@@ -3,10 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import GifViewer from "./pages/GifViewer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
-import ProfilePage from "./components/ProfilePage";
-import MyGoalsPage from "./pages/MyGoalsPage";
-import SchedulePage from "./pages/SchedulePage";
-import AchievementsPage from "./pages/AchievementsPage";
+import ExercisesPage from "./pages/ExercisesPage";
 import { useAuth } from "./providers/auth-provider";
 import { weightService, workoutService, exerciseService } from "./lib/firebase-data-service";
 import type { User, Exercise } from "@myfitness/shared";
@@ -71,19 +68,25 @@ function DashboardApp() {
     }
   };
 
-  const [activePage, setActivePage] = useState<'dashboard' | 'profile' | 'goals' | 'gifs' | 'achievements'>('dashboard');
+  const [activePage, setActivePage] = useState<'dashboard' | 'profile' | 'goals' | 'gifs' | 'achievements' | 'exercises'>('dashboard');
   const [selectedGifId, setSelectedGifId] = useState<string | null>(null);
 
   return (
     <div>
-      <DashboardLayout
-        onNav={(p: string) => setActivePage(p as any)}
-        onOpenGif={(id: string) => { setSelectedGifId(id); setActivePage('gifs'); }}
-        centerPage={activePage}
-      />
-      {/* Gif Viewer and profile etc. to render here as needed by your nav logic, e.g. ProfilePage */}
-      {activePage === 'gifs' && (
-        <GifViewer exerciseId={selectedGifId} onBack={() => setActivePage('dashboard')} />
+      {activePage === 'exercises' ? (
+        <ExercisesPage onBack={() => setActivePage('dashboard')} />
+      ) : (
+        <>
+          <DashboardLayout
+            onNav={(p: string) => setActivePage(p as any)}
+            onOpenGif={(id: string) => { setSelectedGifId(id); setActivePage('gifs'); }}
+            centerPage={activePage}
+          />
+          {/* Gif Viewer and profile etc. to render here as needed by your nav logic, e.g. ProfilePage */}
+          {activePage === 'gifs' && (
+            <GifViewer exerciseId={selectedGifId} onBack={() => setActivePage('dashboard')} />
+          )}
+        </>
       )}
     </div>
   );
