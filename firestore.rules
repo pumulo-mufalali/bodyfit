@@ -1,0 +1,101 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profiles - users can read/write their own profile
+    match /users/{userId} {
+      // Allow users to read their own profile
+      allow read: if isOwner(userId);
+      
+      // Allow users to create their own profile on signup
+      allow create: if isOwner(userId) 
+        && request.resource.data.uid == userId
+        && request.resource.data.keys().hasAll(['uid', 'email', 'name', 'age', 'weightKg']);
+      
+      // Allow users to update their own profile
+      allow update: if isOwner(userId) 
+        && request.resource.data.uid == userId;
+      
+      // Prevent profile deletion (or allow it if user wants to delete account)
+      allow delete: if isOwner(userId);
+
+      // User goals subcollection
+      match /goals/{goalId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && request.resource.data.keys().hasAll(['title', 'target', 'current', 'unit', 'category', 'deadline'])
+          && request.resource.data.title is string
+          && request.resource.data.target is number
+          && request.resource.data.current is number;
+        allow update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // Weight entries subcollection
+      match /weight/{weightId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && request.resource.data.keys().hasAll(['date', 'weight'])
+          && request.resource.data.weight is number
+          && request.resource.data.weight > 0
+          && request.resource.data.weight <= 1000;
+        allow update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // Workout logs subcollection
+      match /workouts/{workoutId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && request.resource.data.keys().hasAll(['date', 'exerciseId', 'durationMinutes', 'intensity'])
+          && request.resource.data.durationMinutes is number
+          && request.resource.data.durationMinutes >= 0
+          && request.resource.data.intensity in ['low', 'medium', 'high'];
+        allow update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // Schedule subcollection
+      match /schedules/{scheduleId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // User preferences subcollection
+      match /preferences/{preferenceId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId);
+      }
+
+      // Activity logs subcollection
+      match /activity/{activityId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId);
+      }
+
+      // Achievements subcollection
+      match /achievements/{achievementId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId);
+      }
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

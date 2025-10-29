@@ -7,10 +7,15 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
+    "test": "turbo run test",
     "format": "prettier -w .",
     "build:web": "turbo run build --filter=@myfitness/web",
     "deploy": "pnpm build:web && firebase deploy --only hosting",
-    "deploy:debug": "pnpm build:web && firebase deploy --only hosting --debug"
+    "deploy:debug": "pnpm build:web && firebase deploy --only hosting --debug",
+    "deploy:all": "pnpm build:web && firebase deploy --only hosting,firestore:rules",
+    "deploy:rules": "firebase deploy --only firestore:rules",
+    "deploy:functions": "cd packages/functions && pnpm build && cd ../.. && firebase deploy --only functions",
+    "deploy:hosting": "pnpm build:web && firebase deploy --only hosting"
   },
   "devDependencies": {
     "prettier": "^3.3.3",

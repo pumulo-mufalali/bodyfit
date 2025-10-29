@@ -6,6 +6,7 @@
     "types": ["vite/client"]
   },
   "include": ["src", "vite.config.ts", "index.html"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test"],
   "references": [
     { "path": "../../packages/shared" }
   ]

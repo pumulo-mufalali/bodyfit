@@ -13,7 +13,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@myfitness/shared": ["packages/shared/src"]
+      "@myfitness/shared": ["packages/shared/src"],
+      "@myfitness/functions": ["packages/functions/src"],
+      "@myfitness/functions/*": ["packages/functions/src/*"]
     }
   }
 }

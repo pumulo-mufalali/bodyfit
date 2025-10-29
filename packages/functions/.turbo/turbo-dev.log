@@ -1,0 +1,8 @@
+
+> @myfitness/functions@0.0.0 dev C:\Users\MUF4L4L1\Desktop\MyFitness\packages\functions
+> tsx watch src/index.ts
+
+'tsx' is not recognized as an internal or external command,
+operable program or batch file.
+ ELIFECYCLE  Command failed with exit code 1.
+ WARN   Local package.json exists, but node_modules missing, did you mean to install?
