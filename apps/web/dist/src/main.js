@@ -5,4 +5,7 @@ import "./index.css";
 import App from "./App";
 import { ThemeProvider } from "./providers/theme-provider";
 import { APIProvider } from "./providers/api-provider";
-ReactDOM.createRoot(document.getElementById("root")).render(_jsx(React.StrictMode, { children: _jsx(ThemeProvider, { children: _jsx(APIProvider, { children: _jsx(App, {}) }) }) }));
+import { AuthProvider } from "./providers/auth-provider";
+import { SettingsProvider } from "./providers/settings-provider";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+ReactDOM.createRoot(document.getElementById("root")).render(_jsx(React.StrictMode, { children: _jsx(ErrorBoundary, { children: _jsx(ThemeProvider, { children: _jsx(APIProvider, { children: _jsx(AuthProvider, { children: _jsx(SettingsProvider, { children: _jsx(App, {}) }) }) }) }) }) }));

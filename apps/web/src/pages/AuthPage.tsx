@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import LoginForm from '../components/LoginForm';
 import SignUpForm from '../components/SignUpForm';
-import { Dumbbell } from 'lucide-react';
 import { useAuth } from '../providers/auth-provider';
 
 interface AuthPageProps {
@@ -20,11 +19,11 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
       uid: userData.uid,
       name: userData.displayName || userData.email?.split('@')[0] || 'User',
       email: userData.email,
-      age: 25,
-      weightKg: 70,
-      heightCm: 175,
+      age: 0,
+      weightKg: 0,
+      heightCm: 0,
       theme: "system",
-      fitnessGoal: "Build strength and improve endurance"
+      fitnessGoal: "Not yet set"
     };
     
     login(appUser);
@@ -32,22 +31,30 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-70 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-70 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-40 left-1/2 w-80 h-80 bg-green-200 dark:bg-green-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-70 animate-pulse" style={{ animationDelay: '4s' }}></div>
+    <div className="min-h-screen gradient-elegant-light dark:gradient-elegant-dark flex items-center justify-center p-6">
+      {/* Modern Background Pattern */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-200/10 dark:bg-blue-900/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-60 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-200/10 dark:bg-indigo-900/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-60 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-40 left-1/2 w-96 h-96 bg-emerald-200/10 dark:bg-emerald-900/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-60 animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-lg">
         {/* Logo and Brand */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-8"
+          className="text-center mb-12"
         >
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <h1 className="text-5xl font-black bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 dark:from-white dark:via-blue-100 dark:to-indigo-100 bg-clip-text text-transparent">
+              FITNESS TRACKER
+            </h1>
+          </div>
+          <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">
+            Your personal fitness companion
+          </p>
         </motion.div>
 
         {/* Auth Form */}
@@ -77,16 +84,28 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-8 text-center"
+          className="mt-12 text-center"
         >
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 font-medium">
             Track your progress, log workouts, and achieve your fitness goals
           </p>
-          <div className="flex justify-center space-x-6 text-xs text-gray-400 dark:text-gray-500">
-            <span>📊 Analytics</span>
-            <span>🏋️ Workouts</span>
-            <span>📈 Progress</span>
-            <span>🎯 Goals</span>
+          <div className="flex justify-center space-x-8 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">📊</span>
+              <span>Analytics</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🏋️</span>
+              <span>Workouts</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">📈</span>
+              <span>Progress</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🎯</span>
+              <span>Goals</span>
+            </div>
           </div>
         </motion.div>
       </div>

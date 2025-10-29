@@ -5,13 +5,13 @@ export function ThemeProvider({ children }) {
     // Initialize theme before first render
     const [theme, setTheme] = useState(() => {
         if (typeof window === 'undefined')
-            return 'system';
+            return 'light';
         const saved = localStorage.getItem("theme");
         const root = document.documentElement;
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        const isDark = saved === "dark" || ((!saved || saved === "system") && prefersDark);
+        const isDark = saved === "dark" || (saved === "system" && prefersDark);
         root.classList.toggle("dark", isDark);
-        return saved || "system";
+        return saved || "light";
     });
     useEffect(() => {
         localStorage.setItem("theme", theme);

@@ -1,73 +1,83 @@
-import { jsx as _jsx } from "react/jsx-runtime";
-import DashboardLayout from './components/DashboardLayout';
-import ProfilePage from './components/ProfilePage';
-import { useState } from 'react';
+import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from './lib/api';
-import MyGoalsPage from './pages/MyGoalsPage';
-import GifViewer from './pages/GifViewer';
-export default function App() {
+import { useAuth } from "./providers/auth-provider";
+import GifViewer from "./pages/GifViewer";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardLayout from "./components/DashboardLayout";
+import ExercisesPage from "./pages/ExercisesPage";
+import { getUserPreferences, saveUserPreferences, logUserActivity } from "./lib/firebase-user-preferences-service";
+function DashboardApp() {
+    const { user } = useAuth();
     const queryClient = useQueryClient();
-    const [newWeight, setNewWeight] = useState("");
-    const [selectedExercise, setSelectedExercise] = useState("");
-    const [workoutDuration, setWorkoutDuration] = useState("");
-    const [workoutNotes, setWorkoutNotes] = useState("");
-    const { data: profile, isLoading: profileLoading } = useQuery({
-        queryKey: ['user', 'profile'],
-        queryFn: api.user.getProfile
+    // Load preferences from Firestore
+    const { data: preferences } = useQuery({
+        queryKey: ['userPreferences', user?.uid],
+        queryFn: () => getUserPreferences(user.uid),
+        enabled: !!user?.uid,
     });
-    const { data: weightHistory = [] } = useQuery({
-        queryKey: ['weight', 'history'],
-        queryFn: api.weight.getHistory
-    });
-    const { data: exercises = [] } = useQuery({
-        queryKey: ['workouts', 'exercises'],
-        queryFn: api.workouts.getExercises
-    });
-    const { data: workoutLogs = [] } = useQuery({
-        queryKey: ['workouts', 'logs'],
-        queryFn: api.workouts.getLogs
-    });
-    const updateProfileMutation = useMutation({
-        mutationFn: (input) => api.user.updateProfile(input),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
+    // Load saved page from Firestore preferences, fallback to localStorage for initial load
+    const [activePage, setActivePage] = useState(() => {
+        if (preferences?.lastActivePage && ['dashboard', 'profile', 'goals', 'gifs', 'achievements', 'exercises', 'workouts', 'schedule', 'settings'].includes(preferences.lastActivePage)) {
+            return preferences.lastActivePage;
         }
-    });
-    const addWeightMutation = useMutation({
-        mutationFn: (weight) => api.weight.addEntry(weight),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['weight', 'history'] });
-            setNewWeight("");
+        // Fallback to localStorage during initial load
+        const saved = localStorage.getItem('myfitness_active_page');
+        if (saved && ['dashboard', 'profile', 'goals', 'gifs', 'achievements', 'exercises', 'workouts', 'schedule', 'settings'].includes(saved)) {
+            return saved;
         }
+        return 'dashboard';
     });
-    const logWorkoutMutation = useMutation({
-        mutationFn: (data) => api.workouts.logWorkout(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['workouts', 'logs'] });
-            setSelectedExercise("");
-            setWorkoutDuration("");
-            setWorkoutNotes("");
+    // Update activePage when preferences load
+    useEffect(() => {
+        if (preferences?.lastActivePage && ['dashboard', 'profile', 'goals', 'gifs', 'achievements', 'exercises', 'workouts', 'schedule', 'settings'].includes(preferences.lastActivePage)) {
+            setActivePage(preferences.lastActivePage);
         }
+    }, [preferences?.lastActivePage]);
+    const [selectedGifId, setSelectedGifId] = useState(() => {
+        return preferences?.lastSelectedGifId || null;
     });
-    const handleLogWorkout = () => {
-        if (selectedExercise && workoutDuration) {
-            const dateStr = new Date().toISOString().split('T')[0];
-            const dur = parseInt(workoutDuration);
-            const intensity = dur < 20 ? 'low' : dur <= 40 ? 'medium' : 'high';
-            const caloriesBurned = Math.round(dur * 8); // simple estimate
-            logWorkoutMutation.mutate({
-                exerciseId: selectedExercise,
-                durationMinutes: dur,
-                intensity,
-                caloriesBurned,
-                date: dateStr,
-                notes: workoutNotes || undefined
-            });
+    // Save preferences mutation
+    const savePreferencesMutation = useMutation({
+        mutationFn: (prefs) => saveUserPreferences(user.uid, prefs),
+    });
+    // Save page to Firestore whenever it changes
+    useEffect(() => {
+        if (user?.uid && activePage) {
+            // Keep localStorage as immediate backup
+            localStorage.setItem('myfitness_active_page', activePage);
+            // Save to Firestore
+            savePreferencesMutation.mutate({ lastActivePage: activePage });
+            // Log activity
+            logUserActivity(user.uid, { type: 'page_view', page: activePage });
         }
+    }, [activePage, user?.uid]);
+    // Save selectedGifId to Firestore
+    useEffect(() => {
+        if (user?.uid && selectedGifId) {
+            // Only save if selectedGifId has a value (not null or empty)
+            savePreferencesMutation.mutate({ lastSelectedGifId: selectedGifId });
+        }
+        else if (user?.uid && selectedGifId === null) {
+            // If explicitly set to null, we can remove it by not including it in preferences
+            // But since we're using merge: true, we need to explicitly delete the field
+            // For now, just don't save it if it's null
+        }
+    }, [selectedGifId, user?.uid]);
+    // Handler for navigation - saves current page scroll position
+    const handleNav = (page) => {
+        // Save current scroll position for current page
+        const currentPage = activePage;
+        if (currentPage) {
+            sessionStorage.setItem(`myfitness_scroll_${currentPage}`, String(window.scrollY));
+        }
+        setActivePage(page);
     };
-    const [showProfilePage, setShowProfilePage] = useState(false);
-    const [activePage, setActivePage] = useState('dashboard');
-    const [selectedGifId, setSelectedGifId] = useState(null);
-    return (_jsx("div", { children: activePage === 'profile' ? (_jsx(ProfilePage, { onClose: () => setActivePage('dashboard') })) : activePage === 'goals' ? (_jsx(MyGoalsPage, { onBack: () => setActivePage('dashboard') })) : activePage === 'gifs' ? (_jsx(GifViewer, { exerciseId: selectedGifId, onBack: () => setActivePage('dashboard') })) : (_jsx(DashboardLayout, { profile: profile, onNav: (p) => setActivePage(p), onOpenGif: (id) => { setSelectedGifId(id); setActivePage('gifs'); } })) }));
+    return (_jsx("div", { children: activePage === 'exercises' ? (_jsx(ExercisesPage, { onBack: () => handleNav('dashboard') })) : (_jsxs(_Fragment, { children: [_jsx(DashboardLayout, { onNav: handleNav, onOpenGif: (id) => {
+                        setSelectedGifId(id);
+                        handleNav('gifs');
+                    }, centerPage: activePage }), activePage === 'gifs' && (_jsx(GifViewer, { exerciseId: selectedGifId, onBack: () => handleNav('dashboard') }))] })) }));
+}
+export default function App() {
+    return (_jsx(ProtectedRoute, { children: _jsx(DashboardApp, {}) }));
 }

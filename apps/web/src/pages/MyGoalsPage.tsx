@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../providers/auth-provider';
 import { getUserGoals, createGoal, updateGoal, deleteGoal } from '../lib/firebase-goal-service';
+import { logUserActivity } from '../lib/firebase-user-preferences-service';
 import type { Goal } from '@myfitness/shared';
 
 export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
@@ -28,8 +29,15 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
   // Create goal mutation
   const createGoalMutation = useMutation({
     mutationFn: (goalData: Omit<Goal, 'id'>) => createGoal(user!.uid, goalData),
-    onSuccess: () => {
+    onSuccess: (newGoal) => {
       queryClient.invalidateQueries({ queryKey: ['goals', user?.uid] });
+      // Log activity
+      if (user?.uid) {
+        logUserActivity(user.uid, {
+          type: 'goal_created',
+          metadata: { goalId: newGoal.id, title: newGoal.title, target: newGoal.target },
+        });
+      }
       handleCloseModal();
     },
   });
@@ -38,8 +46,15 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
   const updateGoalMutation = useMutation({
     mutationFn: ({ goalId, updates }: { goalId: string; updates: Partial<Omit<Goal, 'id' | 'createdAt'>> }) =>
       updateGoal(user!.uid, goalId, updates),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['goals', user?.uid] });
+      // Log activity
+      if (user?.uid) {
+        logUserActivity(user.uid, {
+          type: 'goal_created', // Using goal_created for updates too
+          metadata: { goalId: variables.goalId, ...variables.updates },
+        });
+      }
       handleCloseModal();
     },
   });
@@ -47,8 +62,15 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
   // Delete goal mutation
   const deleteGoalMutation = useMutation({
     mutationFn: (goalId: string) => deleteGoal(user!.uid, goalId),
-    onSuccess: () => {
+    onSuccess: (_, goalId) => {
       queryClient.invalidateQueries({ queryKey: ['goals', user?.uid] });
+      // Log activity
+      if (user?.uid) {
+        logUserActivity(user.uid, {
+          type: 'goal_created', // Using goal_created for deletes too
+          metadata: { goalId, action: 'deleted' },
+        });
+      }
     },
   });
 

@@ -1,6 +1,9 @@
 import { z } from "zod";
 
 export const ThemeEnum = z.enum(["light", "dark", "system"]);
+export const UnitsEnum = z.enum(["metric", "imperial"]);
+export const LanguageEnum = z.enum(["en", "es", "fr", "de"]);
+export const PrivacyEnum = z.enum(["private", "friends", "public"]);
 
 export const UserSchema = z.object({
   uid: z.string(),
@@ -11,6 +14,17 @@ export const UserSchema = z.object({
   heightCm: z.number().positive().optional(),
   fitnessGoal: z.string().optional(),
   theme: ThemeEnum.default("system"),
+  // Settings
+  units: UnitsEnum.default("metric"),
+  language: LanguageEnum.default("en"),
+  privacy: PrivacyEnum.default("private"),
+  notifications: z.object({
+    workoutReminders: z.boolean().default(true),
+    goalAchievements: z.boolean().default(true),
+    weeklyProgress: z.boolean().default(false),
+  }).default({}),
+  dataSharing: z.boolean().default(true),
+  activityTracking: z.boolean().default(true),
 });
 
 export const ExerciseSchema = z.object({

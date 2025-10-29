@@ -25,5 +25,30 @@ body { @apply bg-background text-foreground; }
   .hide-scrollbar::-webkit-scrollbar { 
     display: none;  /* Safari and Chrome */
   }
+
+  /* Modern static gradient backgrounds */
+  .gradient-modern-light {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 50%, #94a3b8 75%, #64748b 100%);
+  }
+
+  .gradient-modern-dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+  }
+
+  .gradient-clean-light {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 25%, #e2e8f0 50%, #cbd5e1 75%, #94a3b8 100%);
+  }
+
+  .gradient-clean-dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+  }
+
+  .gradient-elegant-light {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 30%, #cbd5e1 60%, #94a3b8 100%);
+  }
+
+  .gradient-elegant-dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 60%, #475569 100%);
+  }
 }
 

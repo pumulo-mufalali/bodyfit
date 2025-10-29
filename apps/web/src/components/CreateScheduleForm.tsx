@@ -36,7 +36,37 @@ export default function CreateScheduleForm({ onClose, onSave }: { onClose: () =>
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(schedule);
+    
+    // Validate all schedule items
+    const errors: string[] = [];
+    Object.entries(schedule).forEach(([day, items]) => {
+      items.forEach((item, index) => {
+        if (!item.time || item.time.trim().length === 0) {
+          errors.push(`${day.charAt(0).toUpperCase() + day.slice(1)}, Item ${index + 1}: Time is required`);
+        }
+        if (!item.activity || item.activity.trim().length === 0) {
+          errors.push(`${day.charAt(0).toUpperCase() + day.slice(1)}, Item ${index + 1}: Activity is required`);
+        }
+        if (item.activity && item.activity.trim().length > 200) {
+          errors.push(`${day.charAt(0).toUpperCase() + day.slice(1)}, Item ${index + 1}: Activity name must be less than 200 characters`);
+        }
+      });
+    });
+
+    if (errors.length > 0) {
+      alert(`Please fix the following errors:\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? `\n... and ${errors.length - 5} more errors` : ''}`);
+      return;
+    }
+
+    // Filter out invalid items before saving
+    const validSchedule: Record<string, ScheduleItem[]> = {};
+    Object.entries(schedule).forEach(([day, items]) => {
+      validSchedule[day] = items.filter(
+        item => item.time.trim().length > 0 && item.activity.trim().length > 0
+      );
+    });
+
+    onSave(validSchedule);
     onClose();
   };
 

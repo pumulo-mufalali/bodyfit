@@ -1,4 +1,4 @@
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 const config = {
@@ -7,6 +7,7 @@ const config = {
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
     appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
+console.log("Firebase config:", config);
 if (import.meta.env.DEV) {
     const missing = Object.entries(config).filter(([, v]) => !v);
     if (missing.length) {
@@ -14,6 +15,6 @@ if (import.meta.env.DEV) {
         console.warn("Missing Firebase env vars:", missing.map(([k]) => k).join(", "));
     }
 }
-const app = getApps().length ? getApps()[0] : initializeApp(config);
+const app = initializeApp(config);
 export const auth = getAuth(app);
 export const db = getFirestore(app);

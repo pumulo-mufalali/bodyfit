@@ -1,25 +1,80 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import StatsChart from './StatsChart';
 
 interface DetailedStatsModalProps {
   onClose: () => void;
   labels: string[];
-  totalExercises: number;
-  totalExerciseMinutes: number;
-  totalMeals: number;
-  totalCalories: number;
-  averageSleep: number;
+  weightData?: { week: string; weight: number }[];
+  onUpdateWeight?: (weight: number) => void;
+  currentWeight?: number;
+  isUpdating?: boolean;
+  isSuccess?: boolean;
+  units?: 'metric' | 'imperial';
 }
 
 export default function DetailedStatsModal({
   onClose,
   labels,
-  totalExercises,
-  totalExerciseMinutes,
-  totalMeals,
-  totalCalories,
-  averageSleep
+  weightData,
+  onUpdateWeight,
+  currentWeight,
+  isUpdating = false,
+  isSuccess = false,
+  units = 'metric'
 }: DetailedStatsModalProps) {
+  const [newWeight, setNewWeight] = useState("");
+
+  // Clear form when update is successful
+  useEffect(() => {
+    if (isSuccess) {
+      setNewWeight("");
+    }
+  }, [isSuccess]);
+
+  const handleWeightUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newWeight || newWeight.trim().length === 0) {
+      alert('Please enter a weight value');
+      return;
+    }
+
+    const weight = parseFloat(newWeight);
+    
+    if (isNaN(weight)) {
+      alert('Please enter a valid number');
+      return;
+    }
+
+    if (weight <= 0) {
+      alert('Weight must be greater than 0');
+      return;
+    }
+
+    if (weight > 1000) {
+      alert('Weight must be less than 1000 kg');
+      return;
+    }
+
+    if (!onUpdateWeight) {
+      console.error('onUpdateWeight callback is not provided');
+      return;
+    }
+
+    if (isUpdating) {
+      return; // Prevent duplicate submissions
+    }
+
+    try {
+      await onUpdateWeight(weight);
+    } catch (error: any) {
+      console.error("Failed to update weight:", error);
+      const errorMessage = error?.message || 'Failed to update weight. Please try again.';
+      alert(errorMessage);
+    }
+  };
+
   // Stop propagation to prevent closing the modal when clicking inside
   const handleModalContentClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -29,34 +84,50 @@ export default function DetailedStatsModal({
     <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="bg-card rounded-xl p-6 shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={handleModalContentClick}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Detailed Statistics</h2>
+          <h2 className="text-2xl font-bold">Weight Progress</h2>
           <button onClick={onClose} className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Close</button>
         </div>
         <div className="mt-4 text-sm text-gray-100 dark:text-gray-300 mb-4">
-          This is a detailed view of your statistics over the last month. You can analyze your progress more closely here.
+          Track your weight progress over the last 3 months. Update your weight to see real-time changes in your chart.
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-4">
-            <h3 className="text-xl font-bold">Monthly Summary</h3>
-            <div className="space-y-3">
-              <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
-                <div className="text-sm text-muted-foreground">Total Exercises</div>
-                <div className="text-2xl font-bold mt-1">{totalExercises}</div>
-                <div className="text-sm text-muted-foreground">{totalExerciseMinutes} mins</div>
+            {/* Weight Update Section */}
+            {onUpdateWeight && (
+              <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                <h4 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-3">Update Weight</h4>
+                <div className="mb-2">
+                  <span className="text-sm text-green-700 dark:text-green-300">Current Weight: </span>
+                  <span className="font-bold text-green-800 dark:text-green-200">{currentWeight || 'N/A'} kg</span>
+                </div>
+                <form onSubmit={handleWeightUpdate} className="space-y-3">
+                  <div>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      className="w-full px-3 py-2 border border-green-300 dark:border-green-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      placeholder="Enter new weight (kg)"
+                      value={newWeight}
+                      onChange={(e) => setNewWeight(e.target.value)}
+                      disabled={isUpdating}
+                    />
+                  </div>
+                  <motion.button
+                    type="submit"
+                    disabled={isUpdating || !newWeight}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUpdating ? "Updating..." : isSuccess ? "✓ Updated!" : "Update Weight"}
+                  </motion.button>
+                </form>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
-                <div className="text-sm text-muted-foreground">Total Meals</div>
-                <div className="text-2xl font-bold mt-1">{totalMeals}</div>
-                <div className="text-sm text-muted-foreground">{totalCalories} cal</div>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
-                <div className="text-sm text-muted-foreground">Average Sleep</div>
-                <div className="text-2xl font-bold mt-1">{averageSleep} hours</div>
-              </div>
-            </div>
+            )}
           </div>
           <div className="lg:col-span-2 h-[60vh]">
-            <StatsChart labels={labels} />
+            <StatsChart labels={labels} weightData={weightData} units={units} />
           </div>
         </div>
       </div>

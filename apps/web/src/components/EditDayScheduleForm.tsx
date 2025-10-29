@@ -34,7 +34,32 @@ export default function EditDayScheduleForm({ day, initialItems, onClose, onSave
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(items);
+    
+    // Validate all items before saving
+    const errors: string[] = [];
+    items.forEach((item, index) => {
+      if (!item.time || item.time.trim().length === 0) {
+        errors.push(`Item ${index + 1}: Time is required`);
+      }
+      if (!item.activity || item.activity.trim().length === 0) {
+        errors.push(`Item ${index + 1}: Activity is required`);
+      }
+      if (item.activity && item.activity.trim().length > 200) {
+        errors.push(`Item ${index + 1}: Activity name must be less than 200 characters`);
+      }
+    });
+
+    if (errors.length > 0) {
+      alert(`Please fix the following errors:\n${errors.join('\n')}`);
+      return;
+    }
+
+    // Filter out any items with empty time or activity as a safety measure
+    const validItems = items.filter(
+      item => item.time.trim().length > 0 && item.activity.trim().length > 0
+    );
+
+    onSave(validItems);
     onClose();
   };
 
