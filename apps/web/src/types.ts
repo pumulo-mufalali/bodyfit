@@ -1,5 +1,5 @@
 import type { User, Exercise } from '@myfitness/shared';
-import type { WeightEntry, WorkoutLog } from './mock-data';
+import type { WeightEntry, WorkoutLog } from './lib/mock-data';
 
 export interface ProfileProps {
   profile: User;

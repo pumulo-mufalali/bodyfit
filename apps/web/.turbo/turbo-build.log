@@ -2,35 +2,23 @@
 > @myfitness/web@0.0.0 build C:\Users\MUF4L4L1\Desktop\MyFitness\apps\web
 > tsc -b && vite build
 
-src/components/ProfilePage.tsx(122,15): error TS2322: Type '{ uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; privacy: "private" | ... 1 more ... | "public"; ... 4 more ...; fitnessGoal?: string | undefined; } | { ...; }' is not assignable to type '{ uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; privacy: "private" | "friends" | "public"; ... 4 more ...; fitnessGoal?: string | undefined; }'.
-  Type '{ uid: string; name: string; email: string; age: number; weightKg: number; heightCm: number; fitnessGoal: string; theme: "light" | "dark" | "system"; }' is missing the following properties from type '{ uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; privacy: "private" | "friends" | "public"; ... 4 more ...; fitnessGoal?: string | undefined; }': units, language, privacy, notifications, and 2 more.
-src/components/ProgressModal.tsx(119,29): error TS2532: Object is possibly 'undefined'.
-src/components/ProgressModal.tsx(342,64): error TS2532: Object is possibly 'undefined'.
-src/components/ProgressModal.tsx(360,84): error TS2532: Object is possibly 'undefined'.
-src/components/ProgressModal.tsx(360,121): error TS2532: Object is possibly 'undefined'.
-src/components/RecentWorkouts.tsx(2,15): error TS2459: Module '"../lib/mock-data"' declares 'Exercise' locally, but it is not exported.
-src/components/WorkoutLogger.tsx(2,15): error TS2459: Module '"../lib/mock-data"' declares 'Exercise' locally, but it is not exported.
-src/lib/firebase-achievement-service.ts(106,11): error TS2532: Object is possibly 'undefined'.
-src/lib/firebase-achievement-service.ts(172,9): error TS2322: Type '{ id: string; title: string; description: string; icon: "Trophy" | "Star" | "Zap" | "Award" | "Flame" | "Target"; criteria: { type: "duration" | "count" | "streak" | "total_duration"; value: number; }; achieved: boolean; achievedDate: string | ... 1 more ... | undefined; progress: number; }[]' is not assignable to type 'Achievement[]'.
-  Type '{ id: string; title: string; description: string; icon: "Trophy" | "Star" | "Zap" | "Award" | "Flame" | "Target"; criteria: { type: "duration" | "count" | "streak" | "total_duration"; value: number; }; achieved: boolean; achievedDate: string | ... 1 more ... | undefined; progress: number; }' is not assignable to type 'Achievement'.
-    Types of property 'achievedDate' are incompatible.
-      Type 'string | null | undefined' is not assignable to type 'string | null'.
-        Type 'undefined' is not assignable to type 'string | null'.
-src/lib/firebase-user-service.ts(100,9): error TS2740: Type '{ uid: string; name: string; email: string; age: number; weightKg: number; heightCm: number; fitnessGoal: string; theme: "system"; }' is missing the following properties from type '{ uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; privacy: "private" | "friends" | "public"; ... 4 more ...; fitnessGoal?: string | undefined; }': units, language, privacy, notifications, and 2 more.
-src/lib/trpc.ts(7,5): error TS2740: Type '{ uid: string; name: string; age: number; weightKg: number; theme: "system"; }' is missing the following properties from type '{ uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; privacy: "private" | "friends" | "public"; ... 4 more ...; fitnessGoal?: string | undefined; }': email, units, language, privacy, and 3 more.
-src/providers/settings-provider.tsx(89,7): error TS2304: Cannot find name 'logUserActivity'.
-src/providers/settings-provider.tsx(92,16): error TS7006: Parameter 'err' implicitly has an 'any' type.
-src/providers/settings-provider.tsx(97,30): error TS2339: Property 'units' does not exist on type 'User | { uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; ... 5 more ...; fitnessGoal?: string | undefined; }'.
-  Property 'units' does not exist on type 'User'.
-src/providers/settings-provider.tsx(112,33): error TS2339: Property 'language' does not exist on type 'User | { uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; ... 5 more ...; fitnessGoal?: string | undefined; }'.
-  Property 'language' does not exist on type 'User'.
-src/providers/settings-provider.tsx(127,32): error TS2339: Property 'privacy' does not exist on type 'User | { uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; ... 5 more ...; fitnessGoal?: string | undefined; }'.
-  Property 'privacy' does not exist on type 'User'.
-src/providers/settings-provider.tsx(142,38): error TS2339: Property 'notifications' does not exist on type 'User | { uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; ... 5 more ...; fitnessGoal?: string | undefined; }'.
-  Property 'notifications' does not exist on type 'User'.
-src/providers/settings-provider.tsx(163,36): error TS2339: Property 'dataSharing' does not exist on type 'User | { uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; ... 5 more ...; fitnessGoal?: string | undefined; }'.
-  Property 'dataSharing' does not exist on type 'User'.
-src/providers/settings-provider.tsx(178,41): error TS2339: Property 'activityTracking' does not exist on type 'User | { uid: string; name: string; email: string; age: number; weightKg: number; theme: "light" | "dark" | "system"; units: "metric" | "imperial"; language: "en" | "es" | "fr" | "de"; ... 5 more ...; fitnessGoal?: string | undefined; }'.
-  Property 'activityTracking' does not exist on type 'User'.
-src/types.ts(2,46): error TS2307: Cannot find module './mock-data' or its corresponding type declarations.
- ELIFECYCLE  Command failed with exit code 1.
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 2181 modules transformed.
+[1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+rendering chunks...
+(!) C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/lib/firebase-user-service.ts is dynamically imported by C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/components/DashboardLayout.tsx but also statically imported by C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/components/ProfilePage.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/pages/SettingsPage.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, dynamic import will not move module into another chunk.
+[39m
+[1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+(!) C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/lib/firebase-user-preferences-service.ts is dynamically imported by C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/components/exercises/ExerciseGifModal.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/lib/firebase-data-service.ts, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/lib/firebase-schedule-service.ts, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx but also statically imported by C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/App.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/pages/MyGoalsPage.tsx, dynamic import will not move module into another chunk.
+[39m
+computing gzip size...
+[2mdist/[22m[32mindex.html                 [39m[1m[2m    0.41 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[2mdist/[22m[35massets/index-V4Iyo1S6.css  [39m[1m[2m   61.27 kB[22m[1m[22m[2m │ gzip:   9.22 kB[22m
+[2mdist/[22m[36massets/index-C5_p2Yag.js   [39m[1m[33m1,140.17 kB[39m[22m[2m │ gzip: 310.02 kB[22m
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 17.69s[39m

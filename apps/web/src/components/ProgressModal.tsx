@@ -114,9 +114,9 @@ export default function ProgressModal({
   const [selectedExerciseId, setSelectedExerciseId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (exerciseData && exerciseData.logs.length > 0) {
+    if (exerciseData && exerciseData.logs.length > 0 && exerciseData.logs[0]?.exercise?.id) {
       // default to the most recent exercise's exercise id
-      setSelectedExerciseId(exerciseData.logs[0].exercise?.id ?? null);
+      setSelectedExerciseId(exerciseData.logs[0].exercise.id);
     } else {
       setSelectedExerciseId(null);
     }
@@ -339,8 +339,8 @@ export default function ProgressModal({
                         return (
                           <div
                             key={level}
-                            className={`h-8 w-3 rounded-full ${intensityColors[level].bg} ${count > 0 ? 'opacity-100' : 'opacity-30'}`}
-                            style={{ height: `${logs.length ? (count / logs.length) * 32 : 0}px` }}
+                            className={`h-8 w-3 rounded-full ${intensityColors[level]?.bg || 'bg-gray-300'} ${count > 0 ? 'opacity-100' : 'opacity-30'}`}
+                            style={{ height: `${logs?.length ? (count / logs.length) * 32 : 0}px` }}
                           />
                         );
                       })}
@@ -357,10 +357,10 @@ export default function ProgressModal({
                           <div className="space-y-1">
                             <div className="font-medium">{log.exercise?.name || 'Unknown Exercise'}</div>
                             <div className="flex items-center gap-2">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${intensityColors[log.intensity].bg} ${intensityColors[log.intensity].text}`}>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${intensityColors[log.intensity]?.bg || 'bg-gray-300'} ${intensityColors[log.intensity]?.text || 'text-gray-700'}`}>
                                 {log.intensity?.charAt(0).toUpperCase() + (log.intensity?.slice(1) ?? '')}
                               </span>
-                              <span className="text-sm text-muted-foreground">{new Date(log.date ?? '').toLocaleDateString()}</span>
+                              <span className="text-sm text-muted-foreground">{log.date ? new Date(log.date).toLocaleDateString() : 'Unknown date'}</span>
                             </div>
                           </div>
                           <div className="text-right space-y-1">

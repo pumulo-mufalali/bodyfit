@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import type { Exercise, WorkoutLog } from "../lib/mock-data";
+import type { Exercise } from "@myfitness/shared";
+import type { WorkoutLog } from "../lib/mock-data";
 import { useState } from "react";
 
 interface RecentWorkoutsProps {

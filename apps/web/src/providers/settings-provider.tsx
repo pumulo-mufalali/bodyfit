@@ -54,7 +54,21 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     enabled: !!user?.uid,
   });
 
-  const currentUser = profile || user;
+  // Use profile from Firestore if available, otherwise fallback to user from auth
+  // Profile will have all User properties including settings
+  const currentUser = profile || (user ? {
+    ...user,
+    units: 'metric' as const,
+    language: 'en' as const,
+    privacy: 'private' as const,
+    notifications: {
+      workoutReminders: true,
+      goalAchievements: true,
+      weeklyProgress: false,
+    },
+    dataSharing: true,
+    activityTracking: true,
+  } : null);
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
@@ -86,10 +100,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     // Update user profile and log activity
     if (user?.uid) {
       updateProfileMutation.mutate({ theme: newTheme });
-      logUserActivity(user.uid, {
-        type: 'settings_changed',
-        metadata: { setting: 'theme', value: newTheme },
-      }).catch(err => console.error('Error logging theme activity:', err));
+      import('../lib/firebase-user-preferences-service').then(({ logUserActivity }) => {
+        logUserActivity(user.uid, {
+          type: 'settings_changed',
+          metadata: { setting: 'theme', value: newTheme },
+        }).catch((err: any) => console.error('Error logging theme activity:', err));
+      });
     }
   };
 
@@ -103,7 +119,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         logUserActivity(user.uid, {
           type: 'settings_changed',
           metadata: { setting: 'units', value: newUnits },
-        });
+        }).catch((err: any) => console.error('Error logging units activity:', err));
       });
     }
   };
@@ -118,7 +134,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         logUserActivity(user.uid, {
           type: 'settings_changed',
           metadata: { setting: 'language', value: newLanguage },
-        });
+        }).catch((err: any) => console.error('Error logging language activity:', err));
       });
     }
   };
@@ -133,7 +149,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         logUserActivity(user.uid, {
           type: 'settings_changed',
           metadata: { setting: 'privacy', value: newPrivacy },
-        });
+        }).catch((err: any) => console.error('Error logging privacy activity:', err));
       });
     }
   };
@@ -154,7 +170,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         logUserActivity(user.uid, {
           type: 'settings_changed',
           metadata: { setting: 'notifications', value: newNotifications },
-        });
+        }).catch((err: any) => console.error('Error logging notifications activity:', err));
       });
     }
   };
@@ -169,7 +185,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         logUserActivity(user.uid, {
           type: 'settings_changed',
           metadata: { setting: 'dataSharing', value: enabled },
-        });
+        }).catch((err: any) => console.error('Error logging dataSharing activity:', err));
       });
     }
   };
@@ -184,7 +200,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         logUserActivity(user.uid, {
           type: 'settings_changed',
           metadata: { setting: 'activityTracking', value: enabled },
-        });
+        }).catch((err: any) => console.error('Error logging activityTracking activity:', err));
       });
     }
   };

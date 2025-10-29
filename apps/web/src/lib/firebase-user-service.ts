@@ -105,7 +105,17 @@ export async function createInitialUserProfile(uid: string, email: string, displ
     weightKg: 0, // User needs to set this
     heightCm: 0, // User needs to set this
     fitnessGoal: "", // User needs to set this
-    theme: "system"
+    theme: "system",
+    units: "metric",
+    language: "en",
+    privacy: "private",
+    notifications: {
+      workoutReminders: true,
+      goalAchievements: true,
+      weeklyProgress: false,
+    },
+    dataSharing: true,
+    activityTracking: true,
   };
   
   await saveUserToFirestore(initialUser);

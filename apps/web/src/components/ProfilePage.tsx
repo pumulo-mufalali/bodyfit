@@ -72,7 +72,17 @@ export function ProfilePage({ onClose }: { onClose: () => void }) {
     weightKg: 0,
     heightCm: 0,
     fitnessGoal: "",
-    theme: user.theme as "light" | "dark" | "system"
+    theme: (user.theme as "light" | "dark" | "system") || "system",
+    units: "metric" as const,
+    language: "en" as const,
+    privacy: "private" as const,
+    notifications: {
+      workoutReminders: true,
+      goalAchievements: true,
+      weeklyProgress: false,
+    },
+    dataSharing: true,
+    activityTracking: true,
   } : null);
 
   return (

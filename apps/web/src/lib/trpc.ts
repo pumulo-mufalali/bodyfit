@@ -7,9 +7,20 @@ type User = z.infer<typeof UserSchema>;
 let mockUser: User = {
   uid: "demo",
   name: "Demo",
+  email: "demo@example.com",
   age: 25,
   weightKg: 70,
-  theme: "system"
+  theme: "system",
+  units: "metric",
+  language: "en",
+  privacy: "private",
+  notifications: {
+    workoutReminders: true,
+    goalAchievements: true,
+    weeklyProgress: false,
+  },
+  dataSharing: true,
+  activityTracking: true,
 };
 
 // HTTP API client

@@ -102,8 +102,10 @@ function checkAchievementCriteria(
       // For count achievements, the date is when they completed the Nth workout
       // Sort by date ascending to find the workout that achieved the milestone
       const sortedLogs = [...workoutLogs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      const achievedDate = achieved && sortedLogs.length >= criteria.value
-        ? sortedLogs[criteria.value - 1].date // The workout that achieved the milestone
+      const milestoneIndex = criteria.value - 1;
+      const milestoneWorkout = sortedLogs[milestoneIndex];
+      const achievedDate = achieved && milestoneWorkout !== undefined
+        ? milestoneWorkout.date // The workout that achieved the milestone
         : null;
       return { achieved, progress, achievedDate };
     }
@@ -175,7 +177,7 @@ export async function getUserAchievements(userId: string, workoutLogs: WorkoutLo
 
     // Use stored achievement if it exists and is achieved, otherwise calculate from workouts
     const achieved = stored?.achieved || check.achieved;
-    const achievedDate = stored?.achievedDate || check.achievedDate;
+    const achievedDate = stored?.achievedDate || check.achievedDate || null;
     const progress = check.progress;
 
     return {
@@ -185,7 +187,7 @@ export async function getUserAchievements(userId: string, workoutLogs: WorkoutLo
       icon: def.icon,
       criteria: def.criteria,
       achieved,
-      achievedDate: achieved ? (achievedDate || new Date().toISOString().split('T')[0]) : null,
+      achievedDate: achieved ? (achievedDate ?? null) : null,
       progress,
     };
   });
