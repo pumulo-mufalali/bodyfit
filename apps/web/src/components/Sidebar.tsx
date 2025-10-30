@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { User } from '@myfitness/shared';
 import { ThemeToggle } from './theme-toggle';
@@ -8,7 +9,7 @@ import { useSettings } from '../providers/settings-provider';
 import { formatWeight, formatHeight } from '../lib/unit-conversion';
 import { workoutService } from '../lib/firebase-data-service';
 import { exerciseCategories } from '../lib/exercise-categories';
-import type { WorkoutLog } from '../lib/mock-data';
+import type { WorkoutLog } from '../lib/firebase-data-service';
 import { LogOut, Home, Target, User as UserIcon, Calendar, Trophy, BarChart3, Settings, Activity, Clock, Flame } from 'lucide-react';
 
 interface NavItemProps {
@@ -58,34 +59,33 @@ export function Sidebar({ profile, onNav }: { profile?: any; onNav?: (page: stri
 
   const latestWorkout = workoutLogs[0] || null;
 
-  // Get exercise name from exerciseId
-  const getExerciseName = (exerciseId: string): string => {
+  // Get exercise name from exerciseId - memoized with useCallback
+  const getExerciseName = useCallback((exerciseId: string): string => {
     for (const category of exerciseCategories) {
       const exercise = category.exercises.find(ex => ex.id === exerciseId);
       if (exercise) return exercise.name;
     }
     return 'Unknown Exercise';
-  };
+  }, []);
 
-  // Calculate BMI if height and weight are available
-  const calculateBMI = () => {
+  // Calculate BMI if height and weight are available - memoized
+  const bmi = useMemo(() => {
     if (profile?.weightKg && profile?.weightKg > 0 && profile?.heightCm && profile?.heightCm > 0) {
       const heightInMeters = profile.heightCm / 100;
-      const bmi = profile.weightKg / (heightInMeters * heightInMeters);
-      return bmi.toFixed(1);
+      const bmiValue = profile.weightKg / (heightInMeters * heightInMeters);
+      return bmiValue.toFixed(1);
     }
     return null;
-  };
+  }, [profile?.weightKg, profile?.heightCm]);
 
-  const getBMICategory = (bmi: number) => {
-    if (bmi < 18.5) return { category: "Underweight", color: "text-blue-600 dark:text-blue-400" };
-    if (bmi < 25) return { category: "Normal", color: "text-green-600 dark:text-green-400" };
-    if (bmi < 30) return { category: "Overweight", color: "text-yellow-600 dark:text-yellow-400" };
+  const bmiCategory = useMemo(() => {
+    if (!bmi) return null;
+    const bmiNum = Number(bmi);
+    if (bmiNum < 18.5) return { category: "Underweight", color: "text-blue-600 dark:text-blue-400" };
+    if (bmiNum < 25) return { category: "Normal", color: "text-green-600 dark:text-green-400" };
+    if (bmiNum < 30) return { category: "Overweight", color: "text-yellow-600 dark:text-yellow-400" };
     return { category: "Obese", color: "text-red-600 dark:text-red-400" };
-  };
-
-  const bmi = calculateBMI();
-  const bmiCategory = bmi ? getBMICategory(Number(bmi)) : null;
+  }, [bmi]);
 
   return (
     <aside className="w-80 shrink-0 pr-6">
@@ -151,8 +151,49 @@ export function Sidebar({ profile, onNav }: { profile?: any; onNav?: (page: stri
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-gray-200/50 dark:border-gray-700/50"
+          role="navigation"
+          aria-label="Primary"
         >
-          <ul className="space-y-2">
+          <ul
+            className="space-y-2"
+            role="listbox"
+            aria-label="Primary navigation"
+            onKeyDown={(e) => {
+              const list = e.currentTarget;
+              const focusable = Array.from(
+                list.querySelectorAll<HTMLButtonElement>('button')
+              ).filter((el) => !el.disabled);
+              if (focusable.length === 0) return;
+
+              const currentIndex = focusable.findIndex((el) => el === document.activeElement);
+
+              const moveFocus = (nextIndex: number) => {
+                const clamped = Math.max(0, Math.min(focusable.length - 1, nextIndex));
+                focusable[clamped].focus();
+              };
+
+              switch (e.key) {
+                case 'ArrowDown':
+                  e.preventDefault();
+                  moveFocus(currentIndex >= 0 ? currentIndex + 1 : 0);
+                  break;
+                case 'ArrowUp':
+                  e.preventDefault();
+                  moveFocus(currentIndex >= 0 ? currentIndex - 1 : focusable.length - 1);
+                  break;
+                case 'Home':
+                  e.preventDefault();
+                  moveFocus(0);
+                  break;
+                case 'End':
+                  e.preventDefault();
+                  moveFocus(focusable.length - 1);
+                  break;
+                default:
+                  break;
+              }
+            }}
+          >
             <NavItem onClick={() => onNav?.('dashboard')} icon={<Home className="w-5 h-5" />}>Home</NavItem>
             <NavItem onClick={() => onNav?.('workouts')} icon={<Activity className="w-5 h-5" />}>Workout Logs</NavItem>
             <NavItem onClick={() => onNav?.('goals')} icon={<Target className="w-5 h-5" />}>My Goals</NavItem>

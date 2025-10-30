@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 export interface StatCardProps {
@@ -11,13 +11,26 @@ export interface StatCardProps {
   onOpen?: () => void;
 }
 
-export function StatCard({ title, main, sub, progress, gradientClass = 'from-cyan-400 to-blue-500', icon, onOpen }: StatCardProps) {
-  const progressPct = progress ? Math.round((progress.value / Math.max(1, progress.total)) * 100) : 0;
-  const radius = 32;
-  const stroke = 6;
-  const normalizedRadius = radius - stroke / 2;
-  const circumference = 2 * Math.PI * normalizedRadius;
-  const offset = progress ? circumference * (1 - progress.value / Math.max(1, progress.total)) : circumference;
+function StatCardComponent({ title, main, sub, progress, gradientClass = 'from-cyan-400 to-blue-500', icon, onOpen }: StatCardProps) {
+  const progressPct = useMemo(() => 
+    progress ? Math.round((progress.value / Math.max(1, progress.total)) * 100) : 0,
+    [progress]
+  );
+  
+  const { radius, stroke, normalizedRadius, circumference, offset } = useMemo(() => {
+    const r = 32;
+    const s = 6;
+    const normRadius = r - s / 2;
+    const circ = 2 * Math.PI * normRadius;
+    const off = progress ? circ * (1 - progress.value / Math.max(1, progress.total)) : circ;
+    return {
+      radius: r,
+      stroke: s,
+      normalizedRadius: normRadius,
+      circumference: circ,
+      offset: off
+    };
+  }, [progress]);
 
   return (
     <motion.button
@@ -76,4 +89,6 @@ export function StatCard({ title, main, sub, progress, gradientClass = 'from-cya
     </motion.button>
   );
 }
+
+export const StatCard = React.memo(StatCardComponent);
 export default StatCard;

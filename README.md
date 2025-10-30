@@ -7,9 +7,9 @@ A comprehensive fitness tracking application built with the T3 Stack (React, Typ
 ![React](https://img.shields.io/badge/React-18.3-blue)
 ![Firebase](https://img.shields.io/badge/Firebase-10.14-orange)
 
-## ✨ Features
+## Features
 
-### 📊 Dashboard & Tracking
+### Dashboard & Tracking
 - **Weight Progress Tracking**: Visualize your weight journey with interactive charts
 - **Workout Logging**: Log workouts with duration, exercises, and notes
 - **Exercise Browser**: Browse exercises by category (cardio, strength, stretching, full body)
@@ -17,19 +17,19 @@ A comprehensive fitness tracking application built with the T3 Stack (React, Typ
 - **Recent Workouts**: Quick access to your workout history
 - **Achievements System**: Unlock achievements as you reach milestones
 
-### 🎯 Goals Management
+### Goals Management
 - Create and track fitness goals (weight loss, gain, etc.)
 - Set target dates and monitor progress
 - Visual progress indicators
 - Goal insights and recommendations
 
-### 📅 Schedule Management
+### Schedule Management
 - Weekly workout schedule planning
 - Day-by-day activity scheduling
 - Exercise time and activity tracking
 - Schedule persistence and preferences
 
-### 👤 User Profile & Settings
+### User Profile & Settings
 - User profile management
 - Unit conversion (metric/imperial)
 - Theme preferences (light/dark/system)
@@ -37,20 +37,42 @@ A comprehensive fitness tracking application built with the T3 Stack (React, Typ
 - Privacy and notification preferences
 - Account details management
 
-### 🔒 Security & Authentication
+### Security & Authentication
 - Firebase Authentication (email/password)
 - Comprehensive Firestore security rules
 - User-specific data access
 - Protected routes and API endpoints
 
-### 🎨 User Experience
+### User Experience
 - Modern, responsive UI with Tailwind CSS
 - Dark mode support
 - Smooth animations with Framer Motion
 - Mobile-friendly design
 - Error boundaries and graceful error handling
 
-## 🏗️ Tech Stack
+## Screenshots
+
+### Dashboard
+The main dashboard provides an overview of your fitness journey with key statistics, recent workouts, and progress tracking.
+
+![Dashboard](./screenshots/Dashboard.png)
+
+### Weight Progress
+Track your weight over time with interactive charts and detailed statistics.
+
+![Weight Progress](./screenshots/WeightProgress.png)
+
+### Workout Logs
+View and manage your complete workout history with detailed logs of all your exercise sessions.
+
+![Workout Logs](./screenshots/Workout%20Logs.png)
+
+### Workout Session
+Log your workouts with exercise selection, duration tracking, and session notes.
+
+![Workout Session](./screenshots/WorkoutSession.png)
+
+## Tech Stack
 
 ### Frontend
 - **React 18.3** - UI library
@@ -79,7 +101,7 @@ A comprehensive fitness tracking application built with the T3 Stack (React, Typ
 - **ESLint** - Linting
 - **Prettier** - Code formatting
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 MyFitness/
@@ -110,7 +132,7 @@ MyFitness/
 └── package.json               # Root workspace configuration
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -142,7 +164,18 @@ MyFitness/
 
 4. **Configure environment variables**
    
-   Create `.env` file in `apps/web/`:
+   This project supports multiple environments (dev, staging, prod). See [Environment Setup Guide](./docs/ENVIRONMENT_SETUP.md) for detailed instructions.
+   
+   Quick setup for development:
+   ```bash
+   # Copy the example file
+   cp apps/web/.env.example apps/web/.env
+   
+   # Or use the environment switcher
+   pnpm env:dev
+   ```
+   
+   Then edit `apps/web/.env` with your Firebase credentials:
    ```env
    VITE_FIREBASE_API_KEY=your-api-key
    VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
@@ -151,6 +184,7 @@ MyFitness/
    VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
    VITE_FIREBASE_APP_ID=your-app-id
    VITE_TRPC_ENDPOINT=https://us-central1-your-project.cloudfunctions.net/trpc
+   VITE_ENV=dev
    ```
 
 5. **Build shared package**
@@ -193,15 +227,43 @@ pnpm test                   # Run all tests
 pnpm --filter @myfitness/web test        # Run web app tests
 pnpm --filter @myfitness/web test:coverage  # Run with coverage
 
+# Environment Management
+pnpm env:dev                # Switch to development environment
+pnpm env:staging            # Switch to staging environment
+pnpm env:prod               # Switch to production environment
+
+# Database Seeding
+pnpm seed:exercises         # Seed exercises to default environment
+pnpm seed:dev               # Seed all data to development
+pnpm seed:staging           # Seed all data to staging
+pnpm seed:prod              # Seed all data to production
+
 # Formatting
 pnpm format                 # Format code with Prettier
 ```
 
-## 🚢 Deployment
+## Deployment
+
+### Multi-Environment Deployment
+
+This project supports deploying to different environments (dev, staging, prod):
+
+```bash
+# Deploy to development
+pnpm deploy:dev
+
+# Deploy to staging
+pnpm deploy:staging
+
+# Deploy to production
+pnpm deploy:prod
+```
+
+See [Environment Setup Guide](./docs/ENVIRONMENT_SETUP.md) for detailed instructions.
 
 ### Deploy Web App (Hosting + Firestore Rules)
 
-This works on the **free Spark plan**:
+For backward compatibility, this works on the **free Spark plan**:
 
 ```bash
 pnpm deploy:all
@@ -238,25 +300,34 @@ pnpm deploy:functions        # Build and deploy functions
 pnpm deploy:debug            # Deploy with debug output
 ```
 
-## 🧪 Testing
+## Testing
 
-The project uses **Vitest** for unit testing and **React Testing Library** for component testing.
+The project includes comprehensive testing infrastructure:
+
+- **Vitest** for unit and component testing
+- **React Testing Library** for component tests
+- **Playwright** for end-to-end testing
+- **Storybook** for visual regression testing
 
 ```bash
-# Run all tests
-pnpm test
+# Unit & Component Tests
+pnpm test                              # Run all tests
+pnpm --filter @myfitness/web test      # Run web app tests
+pnpm --filter @myfitness/web test:ui   # Run with UI
+pnpm --filter @myfitness/web test:coverage  # Run with coverage
 
-# Run tests in watch mode
-pnpm --filter @myfitness/web test
+# End-to-End Tests
+pnpm test:e2e                          # Run E2E tests
+pnpm --filter @myfitness/web test:e2e:ui  # Run E2E with UI
 
-# Run with UI
-pnpm --filter @myfitness/web test:ui
-
-# Run with coverage
-pnpm --filter @myfitness/web test:coverage
+# Storybook (Visual Regression)
+pnpm storybook                         # Start Storybook
+pnpm --filter @myfitness/web storybook # Start Storybook for web app
 ```
 
-## 📦 Packages
+See [Testing Guide](./docs/TESTING.md) for detailed testing documentation.
+
+## Packages
 
 ### `@myfitness/web`
 The main React frontend application.
@@ -278,7 +349,7 @@ Firebase Cloud Functions implementing the tRPC API server.
 - `user` - User profile management (getProfile, updateProfile, createProfile)
 - `goals` - Goals CRUD operations
 
-## 🔐 Security
+## Security
 
 ### Firestore Security Rules
 The project includes comprehensive security rules that enforce:
@@ -292,7 +363,16 @@ The project includes comprehensive security rules that enforce:
 - All API routes require authentication
 - User IDs are validated on all data operations
 
-## 📱 Features Overview
+### Security Features
+- **Dependabot:** Automated dependency scanning and updates (`.github/dependabot.yml`)
+- **T3 Env:** Type-safe environment variable validation (`apps/web/src/env.ts`)
+- **2FA Required:** All repository collaborators must enable two-factor authentication
+- **Security Audit:** Weekly automated security audits via GitHub Actions
+- **OWASP Top-10 Review:** Comprehensive security review documented in `docs/SECURITY.md`
+
+See [Security Documentation](./docs/SECURITY.md) for detailed security practices and OWASP Top-10 review.
+
+## Features Overview
 
 ### Pages
 - **Dashboard** - Overview with stats, exercises, and schedule
@@ -313,7 +393,7 @@ The project includes comprehensive security rules that enforce:
 - Schedule creation and editing
 - User profile cards and settings
 
-## 🛠️ Configuration
+## Configuration
 
 ### Firebase Configuration
 Edit `firebase.json` to configure:
@@ -332,7 +412,7 @@ Strict TypeScript configuration across all packages with:
 - Shared base config (`tsconfig.base.json`)
 - Package-specific extends
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -346,11 +426,11 @@ Strict TypeScript configuration across all packages with:
 - Ensure `pnpm lint` passes
 - Write tests for new features
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [T3 Stack](https://create.t3.gg/) for the architecture inspiration
 - [Firebase](https://firebase.google.com/) for backend services
@@ -358,14 +438,11 @@ This project is licensed under the MIT License.
 - [Tailwind CSS](https://tailwindcss.com/) for styling
 - [Chart.js](https://www.chartjs.org/) for data visualization
 
-## 📞 Support
+## Support
 
 For issues and questions:
 - Check existing issues in the repository
 - Create a new issue with detailed information
 - Review the documentation in `docs/` directory
 
----
-
-**Built with ❤️ for fitness enthusiasts**
 

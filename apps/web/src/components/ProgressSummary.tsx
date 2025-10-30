@@ -1,24 +1,32 @@
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import type { WorkoutLog } from "../lib/mock-data";
+import type { WorkoutLog } from "../lib/firebase-data-service";
 
 interface ProgressSummaryProps {
   workouts: WorkoutLog[];
   weightChange: number;
 }
 
-export function ProgressSummary({ workouts, weightChange }: ProgressSummaryProps) {
-  const today = new Date();
-  const weekStart = new Date(today);
-  weekStart.setDate(today.getDate() - today.getDay());
-  
-  const thisWeeksWorkouts = workouts.filter(workout => {
-    const workoutDate = new Date(workout.date);
-    return workoutDate >= weekStart;
-  });
+function ProgressSummaryComponent({ workouts, weightChange }: ProgressSummaryProps) {
+  const { thisWeeksWorkouts, totalDuration, workoutDays } = useMemo(() => {
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    
+    const weeksWorkouts = workouts.filter(workout => {
+      const workoutDate = new Date(workout.date);
+      return workoutDate >= weekStart;
+    });
 
-  const totalDuration = thisWeeksWorkouts.reduce((sum, workout) => sum + workout.durationMinutes, 0);
+    const duration = weeksWorkouts.reduce((sum, workout) => sum + workout.durationMinutes, 0);
+    const days = new Set(weeksWorkouts.map(w => w.date)).size;
 
-  const workoutDays = new Set(thisWeeksWorkouts.map(w => w.date)).size;
+    return {
+      thisWeeksWorkouts: weeksWorkouts,
+      totalDuration: duration,
+      workoutDays: days
+    };
+  }, [workouts]);
 
   return (
     <motion.div
@@ -74,3 +82,5 @@ export function ProgressSummary({ workouts, weightChange }: ProgressSummaryProps
     </motion.div>
   );
 }
+
+export const ProgressSummary = React.memo(ProgressSummaryComponent);

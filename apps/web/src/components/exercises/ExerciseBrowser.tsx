@@ -49,7 +49,52 @@ export default function ExerciseBrowser({ onOpenExercise }: ExerciseBrowserProps
         </div>
 
         <div>
-          <div className="grid grid-cols-2 gap-8">
+          <div
+            className="grid grid-cols-2 gap-8"
+            onKeyDown={(e) => {
+              const container = e.currentTarget;
+              const items = Array.from(
+                container.querySelectorAll<HTMLButtonElement>('button')
+              ).filter((el) => !el.disabled);
+              if (items.length === 0) return;
+              const cols = 2;
+              const currentIndex = items.findIndex((el) => el === document.activeElement);
+              const moveTo = (index: number) => {
+                const clamped = Math.max(0, Math.min(items.length - 1, index));
+                items[clamped].focus();
+              };
+              switch (e.key) {
+                case 'ArrowRight':
+                  e.preventDefault();
+                  moveTo(currentIndex >= 0 ? currentIndex + 1 : 0);
+                  break;
+                case 'ArrowLeft':
+                  e.preventDefault();
+                  moveTo(currentIndex >= 0 ? currentIndex - 1 : items.length - 1);
+                  break;
+                case 'ArrowDown':
+                  e.preventDefault();
+                  moveTo(currentIndex >= 0 ? currentIndex + cols : 0);
+                  break;
+                case 'ArrowUp':
+                  e.preventDefault();
+                  moveTo(currentIndex >= 0 ? currentIndex - cols : items.length - 1);
+                  break;
+                case 'Home':
+                  e.preventDefault();
+                  moveTo(0);
+                  break;
+                case 'End':
+                  e.preventDefault();
+                  moveTo(items.length - 1);
+                  break;
+                default:
+                  break;
+              }
+            }}
+            role="grid"
+            aria-label={`${selectedCategory} exercises`}
+          >
             {exerciseCategories
               .find((cat) => cat.category === selectedCategory)
               ?.exercises.map((exercise) => (

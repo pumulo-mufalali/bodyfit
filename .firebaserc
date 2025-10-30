@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "pumulo-12eb1"
+    "default": "pumulo-12eb1",
+    "dev": "pumulo-12eb1-dev",
+    "staging": "pumulo-12eb1-staging",
+    "prod": "pumulo-12eb1"
   }
 }

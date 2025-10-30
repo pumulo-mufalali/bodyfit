@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../providers/auth-provider';
 import { workoutService } from '../../lib/firebase-data-service';
 import type { Exercise } from '../../lib/exercise-categories';
-import type { WorkoutLog } from '../../lib/mock-data';
+import type { WorkoutLog } from '../../lib/firebase-data-service';
 
 interface ExerciseGifModalProps {
   exercise: Exercise;
@@ -30,6 +30,7 @@ export default function ExerciseGifModal({ exercise, onClose }: ExerciseGifModal
   const [isImageDragging, setIsImageDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const dialogRef = useRef<HTMLDivElement | null>(null);
 
   // Workout logging mutation
   const logWorkoutMutation = useMutation({
@@ -346,6 +347,49 @@ export default function ExerciseGifModal({ exercise, onClose }: ExerciseGifModal
     setIsImageDragging(false);
   };
 
+  // Accessibility: focus trap and Escape to close
+  useEffect(() => {
+    const root = dialogRef.current;
+    if (!root) return;
+
+    const getFocusable = () =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute('disabled'));
+
+    const focusable = getFocusable();
+    (focusable[0] ?? root).focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const items = getFocusable();
+        if (items.length === 0) return;
+        const activeIndex = items.findIndex((el) => el === document.activeElement);
+        if (e.shiftKey) {
+          if (activeIndex <= 0) {
+            e.preventDefault();
+            items[items.length - 1].focus();
+          }
+        } else {
+          if (activeIndex === -1 || activeIndex >= items.length - 1) {
+            e.preventDefault();
+            items[0].focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
@@ -353,7 +397,12 @@ export default function ExerciseGifModal({ exercise, onClose }: ExerciseGifModal
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.25 }}
-        className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-white/20 dark:border-gray-700/50 my-4"
+        className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-white/20 dark:border-gray-700/50 my-4 outline-none"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${exercise.name} details`}
+        ref={dialogRef}
+        tabIndex={-1}
       >
         <button
           onClick={onClose}

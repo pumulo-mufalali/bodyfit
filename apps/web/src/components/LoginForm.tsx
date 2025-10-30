@@ -163,9 +163,17 @@ export default function LoginForm({ onSuccess, onSwitchToSignUp, isLoading: exte
       }
 
       console.log('Sending password reset email to:', trimmedEmail);
-      await sendPasswordResetEmail(auth, trimmedEmail);
+      
+      // Firebase sends reset emails even for non-existent users to prevent email enumeration
+      // But the email might not arrive if the user doesn't exist
+      await sendPasswordResetEmail(auth, trimmedEmail, {
+        url: window.location.origin,
+        handleCodeInApp: false,
+      });
       
       console.log('Password reset email sent successfully');
+      
+      // Enhanced success message with troubleshooting tips
       setResetSuccess(true);
       // Clear email after successful reset for security
       setTimeout(() => {
@@ -398,9 +406,20 @@ export default function LoginForm({ onSuccess, onSwitchToSignUp, isLoading: exte
                     <p className="text-gray-600 dark:text-gray-400 mb-6">
                       We've sent a password reset link to <span className="font-semibold text-gray-900 dark:text-white">{resetEmail}</span>
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">
-                      Please check your inbox and click on the link to reset your password. If you don't see it, check your spam folder.
-                    </p>
+                    <div className="text-sm text-gray-500 dark:text-gray-500 mb-6 space-y-2">
+                      <p className="font-semibold">Next steps:</p>
+                      <ul className="list-disc list-inside space-y-1 ml-2">
+                        <li>Check your inbox (emails usually arrive within 1-2 minutes)</li>
+                        <li>Check your <span className="font-semibold">spam/junk folder</span> - Firebase emails sometimes go there</li>
+                        <li>Look for emails from <span className="font-semibold">noreply@pumulo-12eb1.firebaseapp.com</span></li>
+                        <li>If using Gmail, check the "Promotions" or "Updates" tab</li>
+                        <li>The link expires in 1 hour</li>
+                        <li>Make sure this email is registered to your account</li>
+                      </ul>
+                      <p className="mt-3 text-xs italic">
+                        If you don't receive the email after 5 minutes, try again or contact support.
+                      </p>
+                    </div>
                     <button
                       onClick={closePasswordResetModal}
                       className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl"

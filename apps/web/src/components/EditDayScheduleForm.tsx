@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '../providers/toast-provider';
 
 interface ScheduleItem {
   time: string;
@@ -13,6 +14,7 @@ interface EditDayScheduleFormProps {
 }
 
 export default function EditDayScheduleForm({ day, initialItems, onClose, onSave }: EditDayScheduleFormProps) {
+  const { showError } = useToast();
   const [items, setItems] = useState<ScheduleItem[]>(initialItems);
 
   const handleAddItem = () => {
@@ -50,7 +52,8 @@ export default function EditDayScheduleForm({ day, initialItems, onClose, onSave
     });
 
     if (errors.length > 0) {
-      alert(`Please fix the following errors:\n${errors.join('\n')}`);
+      const errorMessage = errors.slice(0, 3).join(', ') + (errors.length > 3 ? ` and ${errors.length - 3} more errors` : '');
+      showError(`Please fix the following errors: ${errorMessage}`);
       return;
     }
 

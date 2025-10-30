@@ -1,9 +1,31 @@
-import React from 'react';
-import { mockExercises } from '../lib/mock-data';
+import React, { useEffect, useState } from 'react';
+import { exerciseService } from '../lib/firebase-data-service';
 import type { Exercise } from '@myfitness/shared';
 
 export default function GifViewer({ exerciseId, onBack }: { exerciseId?: string | null; onBack?: () => void }) {
-  const exercise: Exercise | undefined = mockExercises.find(e => e.id === exerciseId);
+  const [exercise, setExercise] = useState<Exercise | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchExercise = async () => {
+      if (!exerciseId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const fetchedExercise = await exerciseService.getExerciseById(exerciseId);
+        setExercise(fetchedExercise);
+      } catch (error) {
+        console.error('Error fetching exercise:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchExercise();
+  }, [exerciseId]);
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
@@ -19,13 +41,15 @@ export default function GifViewer({ exerciseId, onBack }: { exerciseId?: string 
       </div>
 
       <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow">
-        {exercise?.imageUrl ? (
+        {isLoading ? (
+          <div className="text-center text-muted-foreground py-8">Loading exercise...</div>
+        ) : exercise?.imageUrl ? (
           <img src={exercise.imageUrl} alt={exercise.name} className="w-full h-[60vh] object-contain mx-auto" />
         ) : (
           <div className="text-center text-muted-foreground">No GIF available</div>
         )}
 
-        {exercise && (
+        {exercise && !isLoading && (
           <div className="mt-4">
             <h3 className="font-medium">{exercise.name}</h3>
             <p className="text-sm text-muted-foreground">{exercise.description}</p>

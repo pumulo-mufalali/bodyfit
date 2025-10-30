@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import Sidebar from './Sidebar';
 import { useAuth } from '../providers/auth-provider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '../providers/toast-provider';
+import { ConfirmDialog } from './ConfirmDialog';
 import { weightService, type WeightEntry } from '../lib/firebase-data-service';
 import { getUserGoals } from '../lib/firebase-goal-service';
 import { getUserSchedule, createUserSchedule, deleteUserSchedule } from '../lib/firebase-schedule-service';
@@ -19,7 +21,7 @@ import ProgressModal from './ProgressModal';
 import { MotivationCard } from './MotivationCard';
 import { useSettings } from '../providers/settings-provider';
 import { convertWeightData } from '../lib/unit-conversion';
-import type { WorkoutLog } from '../lib/mock-data';
+import type { WorkoutLog } from '../lib/firebase-data-service';
 import type { Exercise } from '../lib/exercise-categories';
 
 // Sidebar components
@@ -39,6 +41,8 @@ export default function DashboardLayout({
   onOpenGif?: (exerciseId: string) => void;
   centerPage?: 'dashboard' | 'goals' | 'gifs' | string;
 }) {
+  const { showSuccess } = useToast();
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const settings = useSettings();
@@ -157,7 +161,7 @@ export default function DashboardLayout({
 
 
   // Generate weekly weight data for the last 3 months (12 weeks) based on real Firestore data
-  const generateWeeklyWeightData = (): { week: string; weight: number }[] => {
+  const generateWeeklyWeightData = useCallback((): { week: string; weight: number }[] => {
     const currentWeight = currentUser?.weightKg || 70;
     const weeks = [
       'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 
@@ -227,11 +231,14 @@ export default function DashboardLayout({
     
     // If no weight history exists, show straight line across all 12 weeks
     return weeks.map(week => ({ week, weight: currentWeight }));
-  };
+  }, [weightHistory, currentUser?.weightKg]);
 
-  const weeklyWeightData = generateWeeklyWeightData();
-  const convertedWeightData = convertWeightData(weeklyWeightData, settings.units);
-  const labels = Array.from({ length: 12 }).map((_, i) => `W${i + 1}`);
+  const weeklyWeightData = useMemo(() => generateWeeklyWeightData(), [generateWeeklyWeightData]);
+  const convertedWeightData = useMemo(() => 
+    convertWeightData(weeklyWeightData, settings.units),
+    [weeklyWeightData, settings.units]
+  );
+  const labels = useMemo(() => Array.from({ length: 12 }).map((_, i) => `W${i + 1}`), []);
   const [modalStat, setModalStat] = React.useState<null | {
     title: string;
     progress?: { value: number; total: number };
@@ -241,7 +248,6 @@ export default function DashboardLayout({
   const [showCreateScheduleForm, setShowCreateScheduleForm] = React.useState(false);
   const [showDetailedStats, setShowDetailedStats] = React.useState(false);
   const [showEditInfoDialog, setShowEditInfoDialog] = React.useState(false);
-  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = React.useState(false);
   
   // Get schedule from Firebase
   const { data: schedule } = useQuery<Schedule | null>({
@@ -264,7 +270,8 @@ export default function DashboardLayout({
     mutationFn: () => deleteUserSchedule(user!.uid),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedule', user?.uid] });
-      alert('Schedule deleted successfully!');
+      showSuccess('Schedule deleted successfully!');
+      setShowDeleteConfirmDialog(false);
     },
   });
 
@@ -294,7 +301,7 @@ export default function DashboardLayout({
             <Sidebar profile={currentUser} onNav={onNav} />
           </div>
 
-          <div className="lg:col-span-9 space-y-8">
+          <div id="main-content" role="main" className="lg:col-span-9 space-y-8">
           {centerPage === 'goals' ? (
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -467,54 +474,19 @@ export default function DashboardLayout({
             </div>
           )}
 
-          {showDeleteConfirmDialog && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowDeleteConfirmDialog(false)} />
-              <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-md border border-white/20 dark:border-gray-700/50">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">
-                    Delete Schedule
-                  </h2>
-                </div>
-                <div className="space-y-4">
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Are you sure you want to delete your entire workout schedule? This action cannot be undone and will remove all your scheduled activities for all days of the week.
-                  </p>
-                  <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4 rounded-xl border border-red-200 dark:border-red-700">
-                    <p className="text-sm text-red-700 dark:text-red-300">
-                      ⚠️ Warning: This will permanently delete all your scheduled workouts and activities.
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-6 flex space-x-3 justify-end">
-                  <button
-                    onClick={() => setShowDeleteConfirmDialog(false)}
-                    className="px-6 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium transition-all duration-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      deleteScheduleMutation.mutate();
-                      setShowDeleteConfirmDialog(false);
-                    }}
-                    disabled={deleteScheduleMutation.isPending}
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {deleteScheduleMutation.isPending ? 'Deleting...' : 'Delete Schedule'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          <ConfirmDialog
+            open={showDeleteConfirmDialog}
+            title="Delete Schedule"
+            message="Are you sure you want to delete your entire workout schedule? This action cannot be undone and will remove all your scheduled activities for all days of the week."
+            confirmText="Delete Schedule"
+            cancelText="Cancel"
+            variant="danger"
+            onConfirm={() => deleteScheduleMutation.mutate()}
+            onCancel={() => setShowDeleteConfirmDialog(false)}
+          />
 
+          </div>
         </div>
-      </div>
       </div>
     </>
   );

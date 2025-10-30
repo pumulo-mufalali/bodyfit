@@ -6,6 +6,7 @@ import { ThemeProvider } from "./providers/theme-provider";
 import { APIProvider } from "./providers/api-provider";
 import { AuthProvider } from "./providers/auth-provider";
 import { SettingsProvider } from "./providers/settings-provider";
+import { ToastProvider } from "./providers/toast-provider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <APIProvider>
           <AuthProvider>
             <SettingsProvider>
-              <App />
+              <ToastProvider>
+                <App />
+              </ToastProvider>
             </SettingsProvider>
           </AuthProvider>
         </APIProvider>

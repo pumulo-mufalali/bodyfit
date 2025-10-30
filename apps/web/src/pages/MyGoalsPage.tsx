@@ -3,13 +3,18 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../providers/auth-provider';
 import { getUserGoals, createGoal, updateGoal, deleteGoal } from '../lib/firebase-goal-service';
 import { logUserActivity } from '../lib/firebase-user-preferences-service';
+import { useToast } from '../providers/toast-provider';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import type { Goal } from '@myfitness/shared';
 
 export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { showSuccess } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     target: 0,
@@ -64,6 +69,9 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
     mutationFn: (goalId: string) => deleteGoal(user!.uid, goalId),
     onSuccess: (_, goalId) => {
       queryClient.invalidateQueries({ queryKey: ['goals', user?.uid] });
+      showSuccess('Goal deleted successfully!');
+      setShowDeleteConfirm(false);
+      setGoalToDelete(null);
       // Log activity
       if (user?.uid) {
         logUserActivity(user.uid, {
@@ -124,8 +132,13 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
   };
 
   const handleDelete = (goalId: string) => {
-    if (confirm('Are you sure you want to delete this goal?')) {
-      deleteGoalMutation.mutate(goalId);
+    setGoalToDelete(goalId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (goalToDelete) {
+      deleteGoalMutation.mutate(goalToDelete);
     }
   };
 
@@ -261,6 +274,20 @@ export default function MyGoalsPage({ onBack }: { onBack?: () => void }) {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete Goal"
+        message="Are you sure you want to delete this goal? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setGoalToDelete(null);
+        }}
+      />
     </div>
   );
 }

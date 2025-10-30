@@ -13,9 +13,9 @@ import {
   Legend,
   ArcElement,
 } from 'chart.js';
-import type { WorkoutLog } from '../lib/mock-data';
+import type { WorkoutLog } from '../lib/firebase-data-service';
 import type { Exercise } from '@myfitness/shared';
-import { mockExercises } from '../lib/mock-data';
+import { exerciseService } from '../lib/firebase-data-service';
 
 ChartJS.register(
   CategoryScale,
@@ -87,15 +87,43 @@ export default function ProgressModal({
 }) {
   if (!open) return null;
 
-  const pct = progress ? Math.round((progress.value / Math.max(1, progress.total)) * 100) : 0;
-  const labels = getLastNDays(7);
+  const pct = React.useMemo(() => 
+    progress ? Math.round((progress.value / Math.max(1, progress.total)) * 100) : 0,
+    [progress]
+  );
+  const labels = React.useMemo(() => getLastNDays(7), []);
+
+  // Fetch exercises from Firebase
+  const [exercises, setExercises] = React.useState<Exercise[]>([]);
+  const [exercisesLoading, setExercisesLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchExercises = async () => {
+      if (!isExercise) {
+        setExercisesLoading(false);
+        return;
+      }
+
+      try {
+        setExercisesLoading(true);
+        const fetchedExercises = await exerciseService.getExercises();
+        setExercises(fetchedExercises);
+      } catch (error) {
+        console.error('Error fetching exercises:', error);
+      } finally {
+        setExercisesLoading(false);
+      }
+    };
+
+    fetchExercises();
+  }, [isExercise]);
 
   // Process exercise data
   const exerciseData = React.useMemo(() => {
-    if (!isExercise || !data) return null;
+    if (!isExercise || !data || exercisesLoading) return null;
     const logs = (data as WorkoutLog[]).map(log => ({
       ...log,
-      exercise: mockExercises.find(ex => ex.id === (log as any).exerciseId)
+      exercise: exercises.find(ex => ex.id === (log as any).exerciseId)
     }));
 
     const byCategory = logs.reduce((acc, log) => {
@@ -108,7 +136,7 @@ export default function ProgressModal({
       logs,
       categories: byCategory
     };
-  }, [data, isExercise]);
+  }, [data, isExercise, exercises, exercisesLoading]);
 
   // selected exercise id for showing a main GIF / focus
   const [selectedExerciseId, setSelectedExerciseId] = React.useState<string | null>(null);
@@ -185,6 +213,47 @@ export default function ProgressModal({
     },
   };
 
+  // Accessibility: Escape to close and focus trap
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
+    const getFocusable = () =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute('disabled'));
+    const focusable = getFocusable();
+    (focusable[0] ?? root).focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const items = getFocusable();
+        if (items.length === 0) return;
+        const idx = items.findIndex((el) => el === document.activeElement);
+        if (e.shiftKey) {
+          if (idx <= 0) {
+            e.preventDefault();
+            items[items.length - 1].focus();
+          }
+        } else {
+          if (idx === -1 || idx >= items.length - 1) {
+            e.preventDefault();
+            items[0].focus();
+          }
+        }
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -192,7 +261,12 @@ export default function ProgressModal({
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.25 }}
-        className="relative z-10 w-full max-w-lg bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-lg max-h-[90vh] overflow-y-auto"
+        className="relative z-10 w-full max-w-lg bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-lg max-h-[90vh] overflow-y-auto outline-none"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${title} details`}
+        ref={containerRef}
+        tabIndex={-1}
       >
         <div className="flex justify-between items-start">
           <div>

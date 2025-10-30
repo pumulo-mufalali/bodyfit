@@ -1,6 +1,6 @@
 import { collection, doc, getDocs, setDoc, query, orderBy, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import type { WorkoutLog } from './mock-data';
+import type { WorkoutLog } from './firebase-data-service';
 
 export interface Achievement {
   id: string;

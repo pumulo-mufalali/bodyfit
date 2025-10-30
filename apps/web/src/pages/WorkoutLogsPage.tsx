@@ -1,9 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../providers/auth-provider';
 import { workoutService } from '../lib/firebase-data-service';
 import { exerciseCategories } from '../lib/exercise-categories';
-import type { WorkoutLog } from '../lib/mock-data';
+import type { WorkoutLog } from '../lib/firebase-data-service';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Flame, Activity, Filter } from 'lucide-react';
 
@@ -49,25 +49,25 @@ export default function WorkoutLogsPage() {
     }
   }, [user?.uid, queryClient]);
 
-  // Get exercise name from exerciseId
-  const getExerciseName = (exerciseId: string): string => {
+  // Get exercise name from exerciseId - memoized with useCallback
+  const getExerciseName = useCallback((exerciseId: string): string => {
     for (const category of exerciseCategories) {
       const exercise = category.exercises.find(ex => ex.id === exerciseId);
       if (exercise) return exercise.name;
     }
     return 'Unknown Exercise';
-  };
+  }, []);
 
-  // Get exercise image from exerciseId
-  const getExerciseImage = (exerciseId: string): string | null => {
+  // Get exercise image from exerciseId - memoized with useCallback
+  const getExerciseImage = useCallback((exerciseId: string): string | null => {
     for (const category of exerciseCategories) {
       const exercise = category.exercises.find(ex => ex.id === exerciseId);
       if (exercise) return exercise.imageUrl;
     }
     return null;
-  };
+  }, []);
 
-  // Filter and sort workout logs
+  // Filter and sort workout logs - memoized
   const filteredLogs = useMemo(() => {
     let filtered = workoutLogs;
 
@@ -78,9 +78,10 @@ export default function WorkoutLogsPage() {
 
     // Filter by search term (exercise name)
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(log => {
         const exerciseName = getExerciseName(log.exerciseId);
-        return exerciseName.toLowerCase().includes(searchTerm.toLowerCase());
+        return exerciseName.toLowerCase().includes(searchLower);
       });
     }
 
@@ -90,7 +91,7 @@ export default function WorkoutLogsPage() {
       const dateB = new Date(b.date).getTime();
       return dateB - dateA;
     });
-  }, [workoutLogs, filterIntensity, searchTerm]);
+  }, [workoutLogs, filterIntensity, searchTerm, getExerciseName]);
 
   // Calculate statistics
   const stats = useMemo(() => {

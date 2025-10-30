@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import StatsChart from './StatsChart';
 
@@ -24,6 +24,8 @@ export default function DetailedStatsModal({
   units = 'metric'
 }: DetailedStatsModalProps) {
   const [newWeight, setNewWeight] = useState("");
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const { showError } = useToast();
 
   // Clear form when update is successful
   useEffect(() => {
@@ -32,28 +34,71 @@ export default function DetailedStatsModal({
     }
   }, [isSuccess]);
 
+  // Focus trap and Escape to close
+  useEffect(() => {
+    const root = modalRef.current;
+    if (!root) return;
+
+    const getFocusable = () =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute('disabled'));
+
+    const focusable = getFocusable();
+    (focusable[0] ?? root).focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const items = getFocusable();
+        if (items.length === 0) return;
+        const activeIndex = items.findIndex((el) => el === document.activeElement);
+        if (e.shiftKey) {
+          if (activeIndex <= 0) {
+            e.preventDefault();
+            items[items.length - 1].focus();
+          }
+        } else {
+          if (activeIndex === -1 || activeIndex >= items.length - 1) {
+            e.preventDefault();
+            items[0].focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const handleWeightUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!newWeight || newWeight.trim().length === 0) {
-      alert('Please enter a weight value');
+      showError('Please enter a weight value');
       return;
     }
 
     const weight = parseFloat(newWeight);
     
     if (isNaN(weight)) {
-      alert('Please enter a valid number');
+      showError('Please enter a valid number');
       return;
     }
 
     if (weight <= 0) {
-      alert('Weight must be greater than 0');
+      showError('Weight must be greater than 0');
       return;
     }
 
     if (weight > 1000) {
-      alert('Weight must be less than 1000 kg');
+      showError('Weight must be less than 1000 kg');
       return;
     }
 
@@ -71,7 +116,7 @@ export default function DetailedStatsModal({
     } catch (error: any) {
       console.error("Failed to update weight:", error);
       const errorMessage = error?.message || 'Failed to update weight. Please try again.';
-      alert(errorMessage);
+      showError(errorMessage);
     }
   };
 
@@ -82,7 +127,15 @@ export default function DetailedStatsModal({
 
   return (
     <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="bg-card rounded-xl p-6 shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={handleModalContentClick}>
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Weight progress details"
+        className="bg-card rounded-xl p-6 shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto outline-none"
+        onClick={handleModalContentClick}
+        tabIndex={-1}
+      >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">Weight Progress</h2>
           <button onClick={onClose} className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Close</button>

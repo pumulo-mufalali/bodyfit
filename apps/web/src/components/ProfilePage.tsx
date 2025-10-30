@@ -4,11 +4,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUserFromFirestore, updateUserProfile, createInitialUserProfile } from '../lib/firebase-user-service';
 import type { User } from '@myfitness/shared';
 import { useAuth } from '../providers/auth-provider';
+import { useToast } from '../providers/toast-provider';
 import { useEffect } from 'react';
 
 export function ProfilePage({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
   const { user, login } = useAuth();
+  const { showSuccess, showError } = useToast();
 
   // Always fetch user profile from Firestore if user ID available
   const { data: profile, isLoading: profileLoading, error } = useQuery<User | null>({
@@ -59,10 +61,11 @@ export function ProfilePage({ onClose }: { onClose: () => void }) {
         }
       }
       // Show success message
-      alert('Profile updated successfully!');
+      showSuccess('Profile updated successfully!');
     },
     onError: (error) => {
       console.error('ProfilePage - Mutation error:', error);
+      showError('Failed to update profile. Please try again.');
     }
   });
 

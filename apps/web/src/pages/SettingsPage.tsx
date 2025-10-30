@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../providers/auth-provider';
 import { useSettings } from '../providers/settings-provider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '../providers/toast-provider';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { getUserFromFirestore, updateUserProfile } from '../lib/firebase-user-service';
 import { workoutService, weightService } from '../lib/firebase-data-service';
 import { getUserGoals } from '../lib/firebase-goal-service';
@@ -83,8 +85,10 @@ export default function SettingsPage() {
   const { user, logout } = useAuth();
   const queryClient = useQueryClient();
   const settings = useSettings();
+  const { showSuccess, showError, showWarning } = useToast();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [showClearDataConfirm, setShowClearDataConfirm] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -104,7 +108,7 @@ export default function SettingsPage() {
     mutationFn: (updates: Partial<User>) => updateUserProfile(user!.uid, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user', 'profile', user?.uid] });
-      alert('Settings updated successfully!');
+      showSuccess('Settings updated successfully!');
     },
   });
 
@@ -140,10 +144,10 @@ export default function SettingsPage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      alert('Data exported successfully!');
+      showSuccess('Data exported successfully!');
     } catch (error) {
       console.error('Export failed:', error);
-      alert('Failed to export data. Please try again.');
+      showError('Failed to export data. Please try again.');
     }
   };
 
@@ -153,36 +157,36 @@ export default function SettingsPage() {
     
     try {
       // In a real app, this would call a backend API to delete the account
-      alert('Account deletion is not implemented yet. Please contact support.');
+      showWarning('Account deletion is not implemented yet. Please contact support.');
       setShowDeleteConfirm(false);
     } catch (error) {
       console.error('Delete account failed:', error);
-      alert('Failed to delete account. Please try again.');
+      showError('Failed to delete account. Please try again.');
     }
   };
 
   // Change password function
   const changePassword = async () => {
     if (newPassword !== confirmPassword) {
-      alert('New passwords do not match!');
+      showError('New passwords do not match!');
       return;
     }
     
     if (newPassword.length < 6) {
-      alert('Password must be at least 6 characters long!');
+      showError('Password must be at least 6 characters long!');
       return;
     }
 
     try {
       // In a real app, this would call Firebase Auth to change password
-      alert('Password change is not implemented yet. Please use Firebase Auth directly.');
+      showWarning('Password change is not implemented yet. Please use Firebase Auth directly.');
       setShowPasswordChange(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error) {
       console.error('Password change failed:', error);
-      alert('Failed to change password. Please try again.');
+      showError('Failed to change password. Please try again.');
     }
   };
 
@@ -437,7 +441,7 @@ export default function SettingsPage() {
                 <button
                   onClick={() => {
                     // In a real app, this would open a file picker
-                    alert('Data import is not implemented yet.');
+                    showWarning('Data import is not implemented yet.');
                   }}
                   className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
                 >
@@ -453,9 +457,7 @@ export default function SettingsPage() {
               >
                 <button
                   onClick={() => {
-                    if (confirm('Are you sure you want to clear all your data? This action cannot be undone.')) {
-                      alert('Data clearing is not implemented yet.');
-                    }
+                    setShowClearDataConfirm(true);
                   }}
                   className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
                 >
@@ -598,6 +600,30 @@ export default function SettingsPage() {
           </motion.div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={showClearDataConfirm}
+        title="Clear All Data"
+        message="Are you sure you want to clear all your data? This action cannot be undone."
+        confirmText="Clear Data"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={() => {
+          showWarning('Data clearing is not implemented yet.');
+          setShowClearDataConfirm(false);
+        }}
+        onCancel={() => setShowClearDataConfirm(false)}
+      />
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete Account"
+        message="Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data."
+        confirmText="Delete Account"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={deleteAccount}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

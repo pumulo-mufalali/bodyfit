@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { Exercise } from "@myfitness/shared";
-import type { WorkoutLog } from "../lib/mock-data";
+import type { WorkoutLog } from "../lib/firebase-data-service";
 import { useState } from "react";
 
 interface WorkoutLoggerProps {

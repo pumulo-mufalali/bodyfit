@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '../providers/toast-provider';
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -8,6 +9,7 @@ interface ScheduleItem {
 }
 
 export default function CreateScheduleForm({ onClose, onSave }: { onClose: () => void; onSave: (schedule: Record<string, ScheduleItem[]>) => void }) {
+  const { showError } = useToast();
   const [schedule, setSchedule] = useState<Record<string, ScheduleItem[]>>({
     monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []
   });
@@ -54,7 +56,8 @@ export default function CreateScheduleForm({ onClose, onSave }: { onClose: () =>
     });
 
     if (errors.length > 0) {
-      alert(`Please fix the following errors:\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? `\n... and ${errors.length - 5} more errors` : ''}`);
+      const errorMessage = errors.slice(0, 3).join(', ') + (errors.length > 3 ? ` and ${errors.length - 3} more errors` : '');
+      showError(`Please fix the following errors: ${errorMessage}`);
       return;
     }
 

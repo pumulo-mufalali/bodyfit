@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Line } from "react-chartjs-2";
-import type { WeightEntry } from "../lib/mock-data";
+import type { WeightEntry } from "../lib/firebase-data-service";
 import { useState } from "react";
 import {
   Chart as ChartJS,

@@ -1,6 +1,7 @@
 import { collection, doc, getDocs, addDoc, query, orderBy, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import type { WorkoutLog } from './mock-data';
+import type { Exercise } from '@myfitness/shared';
+import { withResilience } from '../utils/resilient-client';
 
 export interface WeightEntry {
   id: string;
@@ -8,10 +9,20 @@ export interface WeightEntry {
   weight: number;
 }
 
+export interface WorkoutLog {
+  id: string;
+  date: string;
+  exerciseId: string;
+  durationMinutes: number;
+  intensity: 'low' | 'medium' | 'high';
+  caloriesBurned: number;
+  notes?: string;
+}
+
 // Weight service
 export const weightService = {
   async getHistory(userId: string): Promise<WeightEntry[]> {
-    try {
+    return withResilience(async () => {
       if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
         throw new Error('Invalid user ID provided');
       }
@@ -28,16 +39,32 @@ export const weightService = {
           weight: typeof data.weight === 'number' ? data.weight : 0
         } as WeightEntry;
       });
-    } catch (error: any) {
+    }, {
+      serviceName: 'firestore-weight',
+      retry: {
+        maxAttempts: 3,
+        shouldRetry: (error) => {
+          // Don't retry permission errors
+          if (error?.code === 'permission-denied') {
+            return false;
+          }
+          return true;
+        }
+      },
+      circuitBreaker: {
+        failureThreshold: 5,
+        resetTimeoutMs: 30000
+      }
+    }).catch((error: any) => {
       console.error('Error getting weight history:', error);
       if (error.code === 'permission-denied') {
         throw new Error('Permission denied. Please check your authentication.');
       }
       throw new Error('Failed to fetch weight history. Please try again.');
-    }
+    });
   },
   async addEntry(userId: string, weight: number) {
-    try {
+    return withResilience(async () => {
       if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
         throw new Error('Invalid user ID provided');
       }
@@ -64,7 +91,7 @@ export const weightService = {
         weightKg: Math.round(weight * 10) / 10
       });
       
-      // Log activity
+      // Log activity (non-blocking)
       try {
         const { logUserActivity } = await import('./firebase-user-preferences-service');
         await logUserActivity(userId, {
@@ -77,7 +104,23 @@ export const weightService = {
       }
       
       return this.getHistory(userId);
-    } catch (error: any) {
+    }, {
+      serviceName: 'firestore-weight',
+      retry: {
+        maxAttempts: 3,
+        shouldRetry: (error) => {
+          // Don't retry validation errors or permission errors
+          if (error?.code === 'permission-denied' || error?.message?.includes('must be')) {
+            return false;
+          }
+          return true;
+        }
+      },
+      circuitBreaker: {
+        failureThreshold: 5,
+        resetTimeoutMs: 30000
+      }
+    }).catch((error: any) => {
       console.error('Error adding weight entry:', error);
       if (error.code === 'permission-denied') {
         throw new Error('Permission denied. Please check your authentication.');
@@ -86,14 +129,14 @@ export const weightService = {
         throw error;
       }
       throw new Error('Failed to save weight entry. Please try again.');
-    }
+    });
   }
 };
 
 // Workouts service
 export const workoutService = {
   async getLogs(userId: string): Promise<WorkoutLog[]> {
-    try {
+    return withResilience(async () => {
       if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
         throw new Error('Invalid user ID provided');
       }
@@ -114,16 +157,31 @@ export const workoutService = {
           notes: data.notes || undefined
         } as WorkoutLog;
       });
-    } catch (error: any) {
+    }, {
+      serviceName: 'firestore-workouts',
+      retry: {
+        maxAttempts: 3,
+        shouldRetry: (error) => {
+          if (error?.code === 'permission-denied') {
+            return false;
+          }
+          return true;
+        }
+      },
+      circuitBreaker: {
+        failureThreshold: 5,
+        resetTimeoutMs: 30000
+      }
+    }).catch((error: any) => {
       console.error('Error getting workout logs:', error);
       if (error.code === 'permission-denied') {
         throw new Error('Permission denied. Please check your authentication.');
       }
       throw new Error('Failed to fetch workout logs. Please try again.');
-    }
+    });
   },
   async logWorkout(userId: string, data: Omit<WorkoutLog, 'id'>) {
-    try {
+    return withResilience(async () => {
       if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
         throw new Error('Invalid user ID provided');
       }
@@ -164,7 +222,23 @@ export const workoutService = {
       });
       
       return this.getLogs(userId);
-    } catch (error: any) {
+    }, {
+      serviceName: 'firestore-workouts',
+      retry: {
+        maxAttempts: 3,
+        shouldRetry: (error) => {
+          // Don't retry validation errors or permission errors
+          if (error?.code === 'permission-denied' || error?.message?.includes('must be') || error?.message?.includes('required')) {
+            return false;
+          }
+          return true;
+        }
+      },
+      circuitBreaker: {
+        failureThreshold: 5,
+        resetTimeoutMs: 30000
+      }
+    }).catch((error: any) => {
       console.error('Error logging workout:', error);
       if (error.code === 'permission-denied') {
         throw new Error('Permission denied. Please check your authentication.');
@@ -173,15 +247,63 @@ export const workoutService = {
         throw error;
       }
       throw new Error('Failed to save workout. Please try again.');
-    }
+    });
   }
 };
 
 // Exercise service
 export const exerciseService = {
-  async getExercises() {
-    // You can implement a Firestore-based source if preferred later
-    // For now, return an empty array or load from seed data as needed
-    return [];
+  async getExercises(): Promise<Exercise[]> {
+    return withResilience(async () => {
+      const exercisesRef = collection(db, 'exercises');
+      const snapshot = await getDocs(exercisesRef);
+      
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name || '',
+          description: data.description || '',
+          category: data.category || 'cardio',
+          imageUrl: data.imageUrl || ''
+        } as Exercise;
+      });
+    }, {
+      serviceName: 'firestore-exercises',
+      retry: {
+        maxAttempts: 3,
+        shouldRetry: (error) => {
+          if (error?.code === 'permission-denied') {
+            return false;
+          }
+          return true;
+        }
+      },
+      circuitBreaker: {
+        failureThreshold: 5,
+        resetTimeoutMs: 30000
+      }
+    }).catch((error: any) => {
+      console.error('Error getting exercises:', error);
+      if (error.code === 'permission-denied') {
+        throw new Error('Permission denied. Please check your authentication.');
+      }
+      throw new Error('Failed to fetch exercises. Please try again.');
+    });
+  },
+  
+  async getExerciseById(exerciseId: string): Promise<Exercise | undefined> {
+    return withResilience(async () => {
+      const exercises = await this.getExercises();
+      return exercises.find(ex => ex.id === exerciseId);
+    }, {
+      serviceName: 'firestore-exercises',
+      retry: {
+        maxAttempts: 2
+      }
+    }).catch((error: any) => {
+      console.error('Error getting exercise by ID:', error);
+      throw error;
+    });
   }
 };
