@@ -24,6 +24,11 @@ export default function StatsChart({
 
   const weightUnit = getWeightUnit(units);
 
+  // Check if all weights are the same (straight line scenario)
+  const allWeightsSame = weightData && weightData.length > 0 
+    ? weightData.every(d => d.weight === weightData[0]?.weight)
+    : false;
+
   const data = {
     labels: weightData ? weightData.map(d => d.week) : labels,
     datasets: weightData ? [
@@ -32,7 +37,7 @@ export default function StatsChart({
         data: weightData.map(d => d.weight),
         borderColor: 'rgba(34, 197, 94, 1)',
         backgroundColor: 'rgba(34, 197, 94, 0.15)',
-        tension: 0.4,
+        tension: allWeightsSame ? 0 : 0.4, // Straight line if all weights are same, otherwise curve
         fill: true,
         pointBackgroundColor: 'rgba(34, 197, 94, 1)',
         pointBorderColor: '#fff',

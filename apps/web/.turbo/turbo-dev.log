@@ -2,6 +2,9 @@
 > @myfitness/web@0.0.0 dev C:\Users\MUF4L4L1\Desktop\MyFitness\apps\web
 > vite
 
-'vite' is not recognized as an internal or external command,
-operable program or batch file.
- ELIFECYCLE  Command failed with exit code 1.
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m1025[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m4:53:33 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/DashboardLayout.tsx, /src/index.css[22m

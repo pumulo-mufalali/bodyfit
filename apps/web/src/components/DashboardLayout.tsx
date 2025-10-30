@@ -113,8 +113,9 @@ export default function DashboardLayout({
       return getUserFromFirestore(user.uid);
     },
     enabled: !!user?.uid,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    staleTime: 0, // Always consider data stale to allow refetch after updates
     refetchOnWindowFocus: false,
+    refetchOnMount: true, // Refetch when component mounts
   });
   
   // Use Firebase profile if available, otherwise fall back to auth context
@@ -177,7 +178,13 @@ export default function DashboardLayout({
         new Date(entry.date) >= twelveWeeksAgo
       );
       
-      if (recentEntries.length > 0) {
+      // If only one entry exists (initial weight), show straight line
+      if (recentEntries.length === 1 || sortedHistory.length === 1) {
+        const initialWeight = sortedHistory[0]?.weight || currentWeight;
+        return weeks.map(week => ({ week, weight: initialWeight }));
+      }
+      
+      if (recentEntries.length > 1) {
         // Group entries by week
         const weeklyData: { week: string; weight: number }[] = [];
         
@@ -218,18 +225,8 @@ export default function DashboardLayout({
       }
     }
     
-    // If no weight history exists or no recent entries, start with current weight
-    return weeks.map((week, index) => {
-      if (index === 11) {
-        // Week 12 shows current weight
-        return { week, weight: currentWeight };
-      } else {
-        // Previous weeks show slight variations (±0.5kg) to simulate realistic progression
-        const variation = (Math.random() - 0.5) * 1; // ±0.5 kg variation
-        const weight = Math.round((currentWeight + variation) * 10) / 10;
-        return { week, weight };
-      }
-    });
+    // If no weight history exists, show straight line across all 12 weeks
+    return weeks.map(week => ({ week, weight: currentWeight }));
   };
 
   const weeklyWeightData = generateWeeklyWeightData();

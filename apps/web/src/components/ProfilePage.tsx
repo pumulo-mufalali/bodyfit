@@ -26,7 +26,7 @@ export function ProfilePage({ onClose }: { onClose: () => void }) {
     },
     enabled: !!user?.uid,
     retry: 1, // Only retry once
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    staleTime: 0, // Always consider data stale to allow refetch after updates
     refetchOnWindowFocus: false, // Don't refetch on window focus
     refetchOnMount: true, // Refetch when component mounts
     refetchOnReconnect: true, // Refetch when reconnecting
@@ -47,13 +47,16 @@ export function ProfilePage({ onClose }: { onClose: () => void }) {
     onSuccess: async () => {
       console.log('ProfilePage - Mutation success, updating auth context...');
       if (user?.uid) {
+        // Invalidate and refetch to ensure fresh data
+        await queryClient.invalidateQueries({ queryKey: ['user', 'profile', user.uid] });
+        await queryClient.refetchQueries({ queryKey: ['user', 'profile', user.uid] });
+        
         const updatedProfile = await getUserFromFirestore(user.uid);
         console.log('ProfilePage - Got updated profile:', updatedProfile);
         if (updatedProfile) {
           console.log('ProfilePage - Updating auth context with:', updatedProfile);
           login({ ...updatedProfile, fitnessGoal: updatedProfile.fitnessGoal ?? "" });
         }
-        queryClient.invalidateQueries({ queryKey: ['user', 'profile', user.uid] });
       }
       // Show success message
       alert('Profile updated successfully!');
