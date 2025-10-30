@@ -16,6 +16,7 @@
     }
   ],
   "hosting": {
+    "site": "pumulo-12eb1",
     "public": "apps/web/dist",
     "ignore": [
       "firebase.json",

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import type { WorkoutLog } from "../lib/firebase-data-service";
 
-interface ProgressSummaryProps {
+export interface ProgressSummaryProps {
   workouts: WorkoutLog[];
   weightChange: number;
 }

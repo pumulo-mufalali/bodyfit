@@ -4,7 +4,7 @@
 
 [36mvite v5.4.21 [32mbuilding for production...[36m[39m
 transforming...
-[32m✓[39m 2181 modules transformed.
+[32m✓[39m 2197 modules transformed.
 [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
 (!) C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/lib/firebase-user-service.ts is dynamically imported by C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/components/DashboardLayout.tsx but also statically imported by C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/components/ProfilePage.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/pages/SettingsPage.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, dynamic import will not move module into another chunk.
 [39m
@@ -13,12 +13,12 @@ rendering chunks...
 (!) C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/lib/firebase-user-preferences-service.ts is dynamically imported by C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/components/exercises/ExerciseGifModal.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/lib/firebase-data-service.ts, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/lib/firebase-schedule-service.ts, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/providers/settings-provider.tsx but also statically imported by C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/App.tsx, C:/Users/MUF4L4L1/Desktop/MyFitness/apps/web/src/pages/MyGoalsPage.tsx, dynamic import will not move module into another chunk.
 [39m
 computing gzip size...
-[2mdist/[22m[32mindex.html                 [39m[1m[2m    0.41 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
-[2mdist/[22m[35massets/index-Ba85KMAG.css  [39m[1m[2m   61.57 kB[22m[1m[22m[2m │ gzip:   9.29 kB[22m
-[2mdist/[22m[36massets/index-DjTyPaHv.js   [39m[1m[33m1,140.17 kB[39m[22m[2m │ gzip: 310.02 kB[22m
+[2mdist/[22m[32mindex.html                 [39m[1m[2m    0.41 kB[22m[1m[22m[2m │ gzip:   0.27 kB[22m
 [33m
 (!) Some chunks are larger than 500 kB after minification. Consider:
+[2mdist/[22m[35massets/index-BB-F-v5k.css  [39m[1m[2m   62.65 kB[22m[1m[22m[2m │ gzip:   9.57 kB[22m
+[2mdist/[22m[36massets/index-C7dqWjYD.js   [39m[1m[33m1,211.49 kB[39m[22m[2m │ gzip: 327.21 kB[22m
 - Using dynamic import() to code-split the application
+[32m✓ built in 17.52s[39m
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 19.93s[39m

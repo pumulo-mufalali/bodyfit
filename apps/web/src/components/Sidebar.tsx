@@ -169,7 +169,8 @@ export function Sidebar({ profile, onNav }: { profile?: any; onNav?: (page: stri
 
               const moveFocus = (nextIndex: number) => {
                 const clamped = Math.max(0, Math.min(focusable.length - 1, nextIndex));
-                focusable[clamped].focus();
+                const item = focusable[clamped];
+                if (item) item.focus();
               };
 
               switch (e.key) {

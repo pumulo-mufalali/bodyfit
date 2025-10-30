@@ -17,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 const mockWorkouts: WorkoutLog[] = [
   {
     id: '1',
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0] || new Date().toISOString(),
     exerciseId: 'ex1',
     durationMinutes: 30,
     intensity: 'medium',
@@ -25,7 +25,7 @@ const mockWorkouts: WorkoutLog[] = [
   },
   {
     id: '2',
-    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || new Date().toISOString(),
     exerciseId: 'ex2',
     durationMinutes: 45,
     intensity: 'high',
@@ -58,7 +58,7 @@ export const ManyWorkouts: Story = {
   args: {
     workouts: Array.from({ length: 7 }, (_, i) => ({
       id: `workout-${i}`,
-      date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || new Date().toISOString(),
       exerciseId: `ex${i % 5}`,
       durationMinutes: 30 + i * 5,
       intensity: ['low', 'medium', 'high'][i % 3] as 'low' | 'medium' | 'high',

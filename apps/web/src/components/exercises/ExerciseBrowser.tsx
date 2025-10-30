@@ -61,7 +61,8 @@ export default function ExerciseBrowser({ onOpenExercise }: ExerciseBrowserProps
               const currentIndex = items.findIndex((el) => el === document.activeElement);
               const moveTo = (index: number) => {
                 const clamped = Math.max(0, Math.min(items.length - 1, index));
-                items[clamped].focus();
+                const item = items[clamped];
+                if (item) item.focus();
               };
               switch (e.key) {
                 case 'ArrowRight':

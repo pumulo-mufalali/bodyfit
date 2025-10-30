@@ -50,7 +50,16 @@ const envSchema = z.object({
   VITE_FIREBASE_STORAGE_BUCKET: z.string().optional(),
   VITE_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   VITE_FIREBASE_APP_ID: z.string().min(1, 'Firebase app ID is required'),
-  VITE_TRPC_ENDPOINT: z.string().url('tRPC endpoint must be a valid URL').optional(),
+  VITE_TRPC_ENDPOINT: z.preprocess(
+    (val) => {
+      // Convert empty strings to undefined
+      if (typeof val === 'string' && val.trim().length === 0) {
+        return undefined;
+      }
+      return val;
+    },
+    z.string().url('tRPC endpoint must be a valid URL').optional()
+  ),
   VITE_ENV: z.enum(['dev', 'staging', 'prod']).default('dev'),
 });
 
@@ -65,7 +74,7 @@ const parseEnv = () => {
     VITE_FIREBASE_STORAGE_BUCKET: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
     VITE_FIREBASE_MESSAGING_SENDER_ID: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
     VITE_FIREBASE_APP_ID: import.meta.env.VITE_FIREBASE_APP_ID || '',
-    VITE_TRPC_ENDPOINT: import.meta.env.VITE_TRPC_ENDPOINT || '',
+    VITE_TRPC_ENDPOINT: import.meta.env.VITE_TRPC_ENDPOINT || undefined,
     VITE_ENV: (import.meta.env.VITE_ENV || (import.meta.env.DEV ? 'dev' : 'prod')) as 'dev' | 'staging' | 'prod',
   };
 

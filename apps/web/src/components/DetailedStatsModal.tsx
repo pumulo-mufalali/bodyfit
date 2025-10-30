@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import StatsChart from './StatsChart';
+import { useToast } from '../providers/toast-provider';
 
 interface DetailedStatsModalProps {
   onClose: () => void;
@@ -62,12 +63,14 @@ export default function DetailedStatsModal({
         if (e.shiftKey) {
           if (activeIndex <= 0) {
             e.preventDefault();
-            items[items.length - 1].focus();
+            const lastItem = items[items.length - 1];
+            if (lastItem) lastItem.focus();
           }
         } else {
           if (activeIndex === -1 || activeIndex >= items.length - 1) {
             e.preventDefault();
-            items[0].focus();
+            const firstItem = items[0];
+            if (firstItem) firstItem.focus();
           }
         }
       }
